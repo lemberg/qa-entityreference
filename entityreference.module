@@ -13,9 +13,19 @@ function entityreference_ctools_plugin_directory($module, $plugin) {
  * Implements hook_ctools_plugin_type().
  */
 function entityreference_ctools_plugin_type() {
-  $plugins['selection'] = array();
+  $plugins['selection'] = array('process' => 'entityreference_behavior_plugin_process');
   $plugins['behavior'] = array();
   return $plugins;
+}
+
+/**
+ * CTools callback; Process the behavoir plugins.
+ */
+function entityreference_behavior_plugin_process(&$plugin, $info) {
+  $plugin += array(
+    'settings level' => 'field',
+    'access callback' => FALSE,
+  );
 }
 
 /**
