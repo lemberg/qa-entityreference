@@ -315,11 +315,12 @@ function entityreference_render_settings($element, $form_state) {
     $options[$name] = $plugin['title'];
   }
 
-  $element['behaviors_field'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Field behavior'),
+  $element['behaviors_handlers'] = array(
+    '#type' => 'select',
+    '#title' => t('Field behaviors'),
     '#options' => $options,
     '#access' => $options,
+    '#multiple' => TRUE,
   );
 
   $element += call_user_func(array($class, 'settingsForm'), $field, $instance);
