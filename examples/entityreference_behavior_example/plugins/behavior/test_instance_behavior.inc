@@ -37,6 +37,17 @@ class EntityReferenceInstanceBehaviorExample implements EntityReference_Behavior
   public function delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
     drupal_set_message('Do something on delete, on the instance level!');
   }
+
+  /**
+   * Generate a settings form for this handler.
+   */
+  public static function settingsForm($field, $instance) {
+    $form['test_instance'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Instance behavoir setting'),
+    );
+    return $form;
+  }
 }
 
 /**

@@ -346,19 +346,38 @@ function entityreference_render_settings($element, $form_state) {
   }
 
   // Add the accessible behavior handlers.
-  $options = array();
   $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
-  foreach ($behavior_plugins['field'] as $name => $plugin) {
-    $options[$name] = $plugin['title'];
-  }
 
-  $element['behaviors_handlers'] = array(
-    '#type' => 'select',
-    '#title' => t('Field behaviors'),
-    '#options' => $options,
-    '#access' => $options,
-    '#multiple' => TRUE,
-  );
+  if ($behavior_plugins['field']) {
+    $element['behaviors'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Behaviors'),
+    );
+
+    foreach ($behavior_plugins['field'] as $name => $plugin) {
+      $element['behaviors'][$name] = array(
+        '#type' => 'checkbox',
+        '#title' => $plugin['title'],
+        '#default_value' => !empty($field['setttings']['handler_settings']['behaviors'][$name]),
+      );
+
+      $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
+
+      // Get the behavior settings.
+      $behavior_elements = call_user_func(array($behavior_class, 'settingsForm'), $field, $instance);
+      foreach ($behavior_elements as $key => &$behavior_element) {
+        $behavior_element += array(
+          '#states' => array(
+            'visible' => array(
+              ':input[name="field[settings][handler_settings][behaviors][' . $name . ']"]' => array('checked' => TRUE),
+            ),
+          ),
+        );
+      }
+
+      $element['behaviors'] += $behavior_elements;
+    }
+  }
 
   $element += call_user_func(array($class, 'settingsForm'), $field, $instance);
   return $element;

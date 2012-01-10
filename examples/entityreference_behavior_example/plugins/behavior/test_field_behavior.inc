@@ -8,7 +8,7 @@ $plugin = array(
   'access callback' => 'entityreference_behavior_example_field_behavior_access',
 );
 
-class EntityReferenceBehaviorExample implements EntityReference_BehaviorHandler {
+class EntityReferenceFieldBehaviorExample implements EntityReference_BehaviorHandler {
   public function __construct(array $settings, array $field) {
     $this->settings = $settings;
     $this->field = $field;
@@ -36,6 +36,17 @@ class EntityReferenceBehaviorExample implements EntityReference_BehaviorHandler 
 
   public function delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
     drupal_set_message('Do something on delete!');
+  }
+
+  /**
+   * Generate a settings form for this handler.
+   */
+  public static function settingsForm($field, $instance) {
+    $form['test_field'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Field behavoir setting'),
+    );
+    return $form;
   }
 }
 

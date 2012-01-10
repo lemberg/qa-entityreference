@@ -41,4 +41,9 @@ interface EntityReference_BehaviorHandler {
    * @TODO: document.
    */
   public function delete($entity_type, $entity, $field, $instance, $langcode, &$items);
+
+  /**
+   * Generate a settings form for this handler.
+   */
+  public static function settingsForm($field, $instance);
 }
