@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Abstraction of the business logic of an entity reference field.
+ * Abstraction of the selection logic of an entity reference field.
  *
  * Implementations that wish to provide an implementation of this should
  * register it using CTools' plugin system.
  */
-interface EntityReferenceHandler {
+interface EntityReference_SelectionHandler {
   /**
    * Factory function: create a new instance of this handler for a given field.
    *
@@ -51,11 +51,11 @@ interface EntityReferenceHandler {
 }
 
 /**
- * A null implementation of EntityReferenceHandler.
+ * A null implementation of EntityReference_SelectionHandler.
  */
-class EntityReferenceHandler_broken implements EntityReferenceHandler {
+class EntityReference_SelectionHandler_Broken implements EntityReference_SelectionHandler {
   public static function getInstance($field) {
-    return new EntityReferenceHandler_broken($field);
+    return new EntityReference_SelectionHandler_Broken($field);
   }
 
   protected function __construct($field) {

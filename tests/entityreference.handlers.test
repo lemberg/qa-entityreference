@@ -17,7 +17,7 @@ class EntityReferenceHandlersTestCase extends DrupalWebTestCase {
   }
 
   protected function assertReferencable($field, $tests, $handler_name) {
-    $handler = entityreference_get_handler($field);
+    $handler = entityreference_get_selection_handler($field);
 
     foreach ($tests as $test) {
       foreach ($test['arguments'] as $arguments) {
