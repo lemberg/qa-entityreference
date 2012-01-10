@@ -26,7 +26,7 @@ function entityreference_field_info() {
     'label' => t('Entity Reference'),
     'description' => t('This field reference another entity.'),
     'settings' => array(
-      // Default to the core target entity type node. 
+      // Default to the core target entity type node.
       'target_type' => 'node',
       // The handler for this field.
       'handler' => 'base',
@@ -90,6 +90,8 @@ function entityreference_get_behavior_handlers($field) {
       $behavior += array(
         'plugin' => '',
         'settings' => array(),
+        'settigns level' => 'field',
+        'access callback' => FALSE,
       );
 
       $class = ctools_plugin_load_class('entityreference', 'behavior', $behavior['plugin'], 'class');
@@ -295,7 +297,7 @@ function entityreference_render_settings($element, $form_state) {
   ctools_include('plugins');
   $class = ctools_plugin_load_class('entityreference', 'selection', $handler, 'class');
   if (!class_exists($class)) {
-    $class = 'EntityReferenceHandler_broken';
+    $class = 'EntityReference_SelectionHandler_Broken';
   }
 
   // Rebuild the field configuration based on the submitted structure.
@@ -305,8 +307,39 @@ function entityreference_render_settings($element, $form_state) {
     $field['settings'] = $form_state['values']['field']['settings'] + $field['settings'];
   }
 
+  // Add the accessible behavior handlers.
+  $options = array();
+  $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
+  foreach ($behavior_plugins['field'] as $name => $plugin) {
+    $level = $plugin['settings level'];
+    $options[$name] = $plugin['title'];
+  }
+
+  $element['behaviors_field'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Field behavior'),
+    '#options' => $options,
+    '#access' => $options,
+  );
+
   $element += call_user_func(array($class, 'settingsForm'), $field, $instance);
   return $element;
+}
+
+function entityreference_get_accessible_behavior_plugins($select_class, $field, $instance) {
+  $plugins = array('field' => array(), 'instance' => array());
+  foreach (ctools_get_plugins('entityreference', 'behavior') as $name => $plugin) {
+    $level = $plugin['settings level'];
+    if ($func = $plugin['access callback']) {
+      if ($func($select_class, $field, $instance)) {
+        $plugins[$level][$name] = $plugin;
+      }
+    }
+    else {
+      $plugins[$level][$name] = $plugin;
+    }
+  }
+  return $plugins;
 }
 
 /**
