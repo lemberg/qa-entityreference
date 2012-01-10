@@ -284,6 +284,34 @@ function entityreference_field_settings_form($field, $instance, $has_data) {
 }
 
 /**
+ * Implements hook_field_instance_settings_form().
+ */
+function entityreference_field_instance_settings_form($field, $instance) {
+  $settings = $instance['settings'];
+  ctools_include('plugins');
+  $class = ctools_plugin_load_class('entityreference', 'selection', $field['settings']['handler'], 'class');
+  if (!class_exists($class)) {
+    $class = 'EntityReference_SelectionHandler_Broken';
+  }
+
+  $options = array();
+  $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
+  foreach ($behavior_plugins['instance'] as $name => $plugin) {
+    $options[$name] = $plugin['title'];
+  }
+
+  $form['behaviors_handlers'] = array(
+    '#type' => 'select',
+    '#title' => t('Instance behaviors'),
+    '#options' => $options,
+    '#access' => $options,
+    '#multiple' => TRUE,
+  );
+
+  return $form;
+}
+
+/**
  * #process callback: generates the handler settings form.
  *
  * @see entityreference_field_settings_form()
@@ -311,7 +339,6 @@ function entityreference_render_settings($element, $form_state) {
   $options = array();
   $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
   foreach ($behavior_plugins['field'] as $name => $plugin) {
-    $level = $plugin['settings level'];
     $options[$name] = $plugin['title'];
   }
 
@@ -327,7 +354,11 @@ function entityreference_render_settings($element, $form_state) {
   return $element;
 }
 
+/**
+ * Get all accessible behavior plugins.
+ */
 function entityreference_get_accessible_behavior_plugins($select_class, $field, $instance) {
+  ctools_include('plugins');
   $plugins = array('field' => array(), 'instance' => array());
   foreach (ctools_get_plugins('entityreference', 'behavior') as $name => $plugin) {
     $level = $plugin['settings level'];
