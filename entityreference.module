@@ -96,13 +96,13 @@ function entityreference_get_behavior_handlers($field, $instance = NULL) {
   }
 
   if (!isset($object_cache[$identifier])) {
-    ctools_include('plugins');
+    $object_cache[$identifier] = array();
 
     // Merge in defaults.
     $field['settings'] += array('behaviors' => array());
 
     $object_cache[$field['field_name']] = array();
-    $behaviors = $field['settings']['handler_settings']['behaviors'];
+    $behaviors = !empty($field['settings']['handler_settings']['behaviors']) ? $instance['settings']['behaviors'] : array();
     if (!empty($instance)) {
       $behaviors = array_merge($behaviors, $instance['settings']['behaviors']);
     }
@@ -113,6 +113,7 @@ function entityreference_get_behavior_handlers($field, $instance = NULL) {
       }
       unset($settings['enabled']);
 
+      ctools_include('plugins');
       $class = ctools_plugin_load_class('entityreference', 'behavior', $behavior, 'class');
       if (class_exists($class)) {
         $object_cache[$identifier][] = new $class($settings, $field);
