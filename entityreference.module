@@ -107,21 +107,40 @@ function entityreference_get_behavior_handlers($field, $instance = NULL) {
       $behaviors = array_merge($behaviors, $instance['settings']['behaviors']);
     }
     foreach ($behaviors as $behavior => $settings) {
-      if (empty($settings['enabled'])) {
+      if (empty($settings['status'])) {
         // Behavior is not enabled.
         continue;
       }
-      unset($settings['enabled']);
 
-      ctools_include('plugins');
-      $class = ctools_plugin_load_class('entityreference', 'behavior', $behavior, 'class');
-      if (class_exists($class)) {
-        $object_cache[$identifier][] = new $class($settings, $field);
-      }
+      $object_cache[$identifier][] = entityreference_get_behavior_handler($behavior, $field, $instance);
     }
   }
 
   return $object_cache[$identifier];
+}
+
+/**
+ * Get the behavior handler for a given entityreference field and instance.
+ *
+ * @param $handler
+ *   The behavior handler name.
+ */
+function entityreference_get_behavior_handler($behavior, $field, $instance = NULL) {
+  $object_cache = drupal_static(__FUNCTION__);
+
+  if (!isset($object_cache[$behavior])) {
+    ctools_include('plugins');
+    $class = ctools_plugin_load_class('entityreference', 'behavior', $behavior, 'class');
+
+    if (class_exists($class)) {
+      $object_cache[$behavior] = new $class($behavior, $field, $instance);
+    }
+    else {
+      // TODO: Create a behavior broken.
+    }
+  }
+
+  return $object_cache[$behavior];
 }
 
 /**
@@ -366,34 +385,35 @@ function entityreference_get_behavior_elements(&$element, $class, $field, $insta
       else {
         $settings = !empty($instance['settings']['behaviors'][$name]) ? $instance['settings']['behaviors'][$name] : array();
       }
-      $settings += array('enabled' => $plugin['force enable']);
+      $settings += array('status' => $plugin['force enable']);
       $element['behaviors'][$name] = array(
         '#type' => 'fieldset',
         '#title' => $plugin['title'],
-        '#default_value' => $settings['enabled'],
+        '#default_value' => $settings['status'],
       );
-      $element['behaviors'][$name]['enabled'] = array(
+      $element['behaviors'][$name]['status'] = array(
         '#type' => 'checkbox',
         '#title' => t('Enable %title', array('%title' => $plugin['title'])),
-        '#default_value' => $settings['enabled'],
+        '#default_value' => $settings['status'],
       );
 
       $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
-      $behavior_elements = call_user_func(array($behavior_class, 'settingsForm'));
-      $enable_element = $level == 'field' ? 'field[settings][handler_settings][behaviors]' : 'instance[settings][behaviors]';
-      foreach ($behavior_elements as $key => &$behavior_element) {
-        $behavior_element += array(
-          '#default_value' => $settings[$key],
-          '#states' => array(
-            'visible' => array(
-              ':input[name="' . $enable_element . '[' . $name . '][enabled]"]' => array('checked' => TRUE),
+      if ($behavior_elements = call_user_func(array($behavior_class, 'settingsForm'))) {
+        $enable_element = $level == 'field' ? 'field[settings][handler_settings][behaviors]' : 'instance[settings][behaviors]';
+        foreach ($behavior_elements as $key => &$behavior_element) {
+          $behavior_element += array(
+            '#default_value' => !empty($settings[$key]) ? $settings[$key] : NULL,
+            '#states' => array(
+              'visible' => array(
+                ':input[name="' . $enable_element . '[' . $name . '][status]"]' => array('checked' => TRUE),
+              ),
             ),
-          ),
-        );
-      }
+          );
+        }
 
-      // Get the behavior settings.
-      $element['behaviors'][$name] += $behavior_elements;
+        // Get the behavior settings.
+        $element['behaviors'][$name] += $behavior_elements;
+      }
     }
   }
 }
@@ -405,9 +425,9 @@ function entityreference_get_accessible_behavior_plugins($select_class, $field, 
   ctools_include('plugins');
   $plugins = array('field' => array(), 'instance' => array());
   foreach (ctools_get_plugins('entityreference', 'behavior') as $name => $plugin) {
-    $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
+    $handler = entityreference_get_behavior_handler($name, $field, $instance);
     $level = $plugin['settings level'];
-    if (call_user_func(array($behavior_class, 'access'))) {
+    if ($handler->access($select_class)) {
       $plugins[$level][$name] = $plugin;
     }
   }

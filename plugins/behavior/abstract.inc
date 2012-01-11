@@ -7,10 +7,11 @@
  * register it using CTools' plugin system.
  */
 interface EntityReference_BehaviorHandler {
+
   /**
    * @TODO: document.
    */
-  public function __construct(array $settings, array $field, array $instance = NULL);
+  public function __construct($behavior, array $field, array $instance = NULL);
 
   /**
    * @TODO: document.
@@ -50,6 +51,6 @@ interface EntityReference_BehaviorHandler {
   /**
    * Determine if handler should appear.
    */
-  public function access();
+  public function access($selection_class);
 }
 
