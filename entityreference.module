@@ -23,6 +23,7 @@ function entityreference_ctools_plugin_type() {
  */
 function entityreference_behavior_plugin_process(&$plugin, $info) {
   $plugin += array(
+    'description' => '',
     'settings level' => 'field',
     'access callback' => FALSE,
   );
