@@ -396,6 +396,7 @@ function entityreference_get_behavior_elements(&$element, $class, $field, $insta
         '#type' => 'checkbox',
         '#title' => t('Enable %title', array('%title' => $plugin['title'])),
         '#default_value' => $settings['status'],
+        '#disabled' => $plugin['force enabled'],
       );
 
       $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
