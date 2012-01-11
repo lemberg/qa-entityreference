@@ -306,19 +306,7 @@ function entityreference_field_instance_settings_form($field, $instance) {
     $class = 'EntityReference_SelectionHandler_Broken';
   }
 
-  $options = array();
-  $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
-  foreach ($behavior_plugins['instance'] as $name => $plugin) {
-    $options[$name] = $plugin['title'];
-  }
-
-  $form['behaviors_handlers'] = array(
-    '#type' => 'select',
-    '#title' => t('Instance behaviors'),
-    '#options' => $options,
-    '#access' => $options,
-    '#multiple' => TRUE,
-  );
+  entityreference_get_behavior_elements($form, $class, $field, $instance, 'instance');
 
   return $form;
 }
@@ -347,20 +335,34 @@ function entityreference_render_settings($element, $form_state) {
     $field['settings'] = $form_state['values']['field']['settings'] + $field['settings'];
   }
 
-  // Add the accessible behavior handlers.
+  entityreference_get_behavior_elements($element, $class, $field, $instance, 'field');
+
+  $element += call_user_func(array($class, 'settingsForm'), $field, $instance);
+  return $element;
+}
+
+/**
+ * Get the field or instance elements for the field configuration.
+ */
+function entityreference_get_behavior_elements(&$element, $class, $field, $instance, $level) {
+   // Add the accessible behavior handlers.
   $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
 
-  if ($behavior_plugins['field']) {
+  if ($behavior_plugins[$level]) {
     $element['behaviors'] = array();
 
-    foreach ($behavior_plugins['field'] as $name => $plugin) {
-      $settings = !empty($field['setttings']['handler_settings']['behaviors'][$name]) ? $field['setttings']['handler_settings']['behaviors'][$name] : array();
+    foreach ($behavior_plugins[$level] as $name => $plugin) {
+      if ($level == 'field') {
+        $settings = !empty($field['settings']['handler_settings']['behaviors'][$name]) ? $field['settings']['handler_settings']['behaviors'][$name] : array();
+      }
+      else {
+        $settings = !empty($instance['settings']['behaviors'][$name]) ? $instance['settings']['behaviors'][$name] : array();
+      }
       $settings += array('enabled' => $plugin['enabled by default']);
       $element['behaviors'][$name] = array(
         '#type' => 'fieldset',
         '#title' => $plugin['title'],
-        '#default_value' => !empty($field['setttings']['handler_settings']['behaviors'][$name]),
-        '#group' => 'behaviors',
+        '#default_value' => $settings['enabled'],
       );
       $element['behaviors'][$name]['enabled'] = array(
         '#type' => 'checkbox',
@@ -370,11 +372,13 @@ function entityreference_render_settings($element, $form_state) {
 
       $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
       $behavior_elements = call_user_func(array($behavior_class, 'settingsForm'), $field, $instance);
+      $enable_element = $level == 'field' ? 'field[settings][handler_settings][behaviors]' : 'instance[settings][behaviors]';
       foreach ($behavior_elements as $key => &$behavior_element) {
         $behavior_element += array(
+          '#default_value' => $settings[$key],
           '#states' => array(
             'visible' => array(
-              ':input[name="field[settings][handler_settings][behaviors][' . $name . '][enabled]"]' => array('checked' => TRUE),
+              ':input[name="' . $enable_element . '[' . $name . '][enabled]"]' => array('checked' => TRUE),
             ),
           ),
         );
@@ -384,9 +388,6 @@ function entityreference_render_settings($element, $form_state) {
       $element['behaviors'][$name] += $behavior_elements;
     }
   }
-
-  $element += call_user_func(array($class, 'settingsForm'), $field, $instance);
-  return $element;
 }
 
 /**
