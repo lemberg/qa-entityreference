@@ -7,22 +7,10 @@ $plugin = array(
   'settings level' => 'field',
 );
 
-class EntityReferenceFieldBehaviorExample implements EntityReference_BehaviorHandler {
-  public function __construct(array $settings, array $field) {
-    $this->settings = $settings;
-    $this->field = $field;
-  }
+class EntityReferenceFieldBehaviorExample extends EntityReference_BehaviorHandler_Generic {
 
   public function load($entity_type, $entities, $field, $instances, $langcode, &$items) {
     drupal_set_message('Do something on load!');
-  }
-
-  public function validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-
-  }
-
-  public function presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-
   }
 
   public function insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
@@ -40,15 +28,11 @@ class EntityReferenceFieldBehaviorExample implements EntityReference_BehaviorHan
   /**
    * Generate a settings form for this handler.
    */
-  public function settingsForm($field, $instance) {
+  public function settingsForm() {
     $form['test_field'] = array(
       '#type' => 'checkbox',
       '#title' => t('Field behavoir setting'),
     );
     return $form;
-  }
-
-  public function access() {
-    return TRUE;
   }
 }

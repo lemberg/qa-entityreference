@@ -84,36 +84,43 @@ function entityreference_field_is_empty($item, $field) {
   return !isset($item['target_id']) || !is_numeric($item['target_id']);
 }
 
+
 /**
  * Get the behavior handlers for a given entityreference field.
  */
-function entityreference_get_behavior_handlers($field) {
+function entityreference_get_behavior_handlers($field, $instance = NULL) {
   $object_cache = drupal_static(__FUNCTION__);
+  $identifier = $field['field_name'];
+  if (!empty($instance)) {
+    $identifier .= ':' . $instance['entity_type'] . ':' . $instance['bundle'];
+  }
 
-  if (!isset($object_cache[$field['field_name']])) {
+  if (!isset($object_cache[$identifier])) {
     ctools_include('plugins');
 
     // Merge in defaults.
     $field['settings'] += array('behaviors' => array());
 
     $object_cache[$field['field_name']] = array();
-    foreach ($field['settings']['behaviors'] as $behavior) {
-      // Merge in defaults.
-      $behavior += array(
-        'plugin' => '',
-        'settings' => array(),
-        'settigns level' => 'field',
-        'access callback' => FALSE,
-      );
+    $behaviors = $field['settings']['handler_settings']['behaviors'];
+    if (!empty($instance)) {
+      $behaviors = array_merge($behaviors, $instance['settings']['behaviors']);
+    }
+    foreach ($behaviors as $behavior => $settings) {
+      if (empty($settings['enabled'])) {
+        // Behavior is not enabled.
+        continue;
+      }
+      unset($settings['enabled']);
 
-      $class = ctools_plugin_load_class('entityreference', 'behavior', $behavior['plugin'], 'class');
+      $class = ctools_plugin_load_class('entityreference', 'behavior', $behavior, 'class');
       if (class_exists($class)) {
-        $object_cache[$field['field_name']][$plugin_name] = new $class($behavior['settings'], $field);
+        $object_cache[$identifier][] = new $class($settings, $field);
       }
     }
   }
 
-  return $object_cache[$field['field_name']];
+  return $object_cache[$identifier];
 }
 
 /**
@@ -174,7 +181,7 @@ function entityreference_field_validate($entity_type, $entity, $field, $instance
   }
 
   // Invoke the behaviors.
-  foreach (entityreference_get_behavior_handlers($field) as $handler) {
+  foreach (entityreference_get_behavior_handlers($field, $instance) as $handler) {
     $handler->validate($entity_type, $entity, $field, $instance, $langcode, $items, $errors);
   }
 }
@@ -190,7 +197,7 @@ function entityreference_field_presave($entity_type, $entity, $field, $instance,
   }
 
   // Invoke the behaviors.
-  foreach (entityreference_get_behavior_handlers($field) as $handler) {
+  foreach (entityreference_get_behavior_handlers($field, $instance) as $handler) {
     $handler->presave($entity_type, $entity, $field, $instance, $langcode, $items);
   }
 }
@@ -200,7 +207,7 @@ function entityreference_field_presave($entity_type, $entity, $field, $instance,
  */
 function entityreference_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
   // Invoke the behaviors.
-  foreach (entityreference_get_behavior_handlers($field) as $handler) {
+  foreach (entityreference_get_behavior_handlers($field, $instance) as $handler) {
     $handler->insert($entity_type, $entity, $field, $instance, $langcode, $items);
   }
 }
@@ -210,7 +217,7 @@ function entityreference_field_insert($entity_type, $entity, $field, $instance, 
  */
 function entityreference_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
   // Invoke the behaviors.
-  foreach (entityreference_get_behavior_handlers($field) as $handler) {
+  foreach (entityreference_get_behavior_handlers($field, $instance) as $handler) {
     $handler->update($entity_type, $entity, $field, $instance, $langcode, $items);
   }
 }
@@ -220,7 +227,7 @@ function entityreference_field_update($entity_type, $entity, $field, $instance, 
  */
 function entityreference_field_delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
   // Invoke the behaviors.
-  foreach (entityreference_get_behavior_handlers($field) as $handler) {
+  foreach (entityreference_get_behavior_handlers($field, $instance) as $handler) {
     $handler->delete($entity_type, $entity, $field, $instance, $langcode, $items);
   }
 }
@@ -371,7 +378,7 @@ function entityreference_get_behavior_elements(&$element, $class, $field, $insta
       );
 
       $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
-      $behavior_elements = call_user_func(array($behavior_class, 'settingsForm'), $field, $instance);
+      $behavior_elements = call_user_func(array($behavior_class, 'settingsForm'));
       $enable_element = $level == 'field' ? 'field[settings][handler_settings][behaviors]' : 'instance[settings][behaviors]';
       foreach ($behavior_elements as $key => &$behavior_element) {
         $behavior_element += array(

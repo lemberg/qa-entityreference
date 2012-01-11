@@ -7,22 +7,10 @@ $plugin = array(
   'settings level' => 'instance',
 );
 
-class EntityReferenceInstanceBehaviorExample implements EntityReference_BehaviorHandler {
-  public function __construct(array $settings, array $field) {
-    $this->settings = $settings;
-    $this->field = $field;
-  }
+class EntityReferenceInstanceBehaviorExample extends EntityReference_BehaviorHandler_Generic {
 
   public function load($entity_type, $entities, $field, $instances, $langcode, &$items) {
     drupal_set_message('Do something on load, on the instance level!');
-  }
-
-  public function validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-
-  }
-
-  public function presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-
   }
 
   public function insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
@@ -40,22 +28,11 @@ class EntityReferenceInstanceBehaviorExample implements EntityReference_Behavior
   /**
    * Generate a settings form for this handler.
    */
-  public function settingsForm($field, $instance) {
+  public function settingsForm() {
     $form['test_instance'] = array(
       '#type' => 'checkbox',
       '#title' => t('Instance behavoir setting'),
     );
     return $form;
   }
-
-  public function access() {
-    return TRUE;
-  }
-}
-
-/**
- * Access callback to determine if behavior should be available.
- */
-function entityreference_behavior_example_instance_behavior_access($select_class, $field, $instance) {
-  return TRUE;
 }

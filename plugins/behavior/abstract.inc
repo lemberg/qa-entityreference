@@ -10,7 +10,7 @@ interface EntityReference_BehaviorHandler {
   /**
    * @TODO: document.
    */
-  public function __construct(array $settings, array $field);
+  public function __construct(array $settings, array $field, array $instance = NULL);
 
   /**
    * @TODO: document.
@@ -45,10 +45,11 @@ interface EntityReference_BehaviorHandler {
   /**
    * Generate a settings form for this handler.
    */
-  public function settingsForm($field, $instance);
+  public function settingsForm();
 
   /**
    * Determine if handler should appear.
    */
   public function access();
 }
+

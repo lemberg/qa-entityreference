@@ -12,6 +12,7 @@ files[] = entityreference.migrate.inc
 files[] = plugins/selection/abstract.inc
 files[] = plugins/selection/base.inc
 files[] = plugins/behavior/abstract.inc
+files[] = plugins/behavior/base.inc
 
 ; Tests.
 files[] = tests/entityreference.handlers.test
