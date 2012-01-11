@@ -26,6 +26,7 @@ function entityreference_behavior_plugin_process(&$plugin, $info) {
     'description' => '',
     'settings level' => 'field',
     'access callback' => FALSE,
+    'enabled by default' => FALSE,
   );
 }
 
@@ -350,33 +351,37 @@ function entityreference_render_settings($element, $form_state) {
   $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
 
   if ($behavior_plugins['field']) {
-    $element['behaviors'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Behaviors'),
-    );
+    $element['behaviors'] = array();
 
     foreach ($behavior_plugins['field'] as $name => $plugin) {
+      $settings = !empty($field['setttings']['handler_settings']['behaviors'][$name]) ? $field['setttings']['handler_settings']['behaviors'][$name] : array();
+      $settings += array('enabled' => $plugin['enabled by default']);
       $element['behaviors'][$name] = array(
-        '#type' => 'checkbox',
+        '#type' => 'fieldset',
         '#title' => $plugin['title'],
         '#default_value' => !empty($field['setttings']['handler_settings']['behaviors'][$name]),
+        '#group' => 'behaviors',
+      );
+      $element['behaviors'][$name]['enabled'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable %title', array('%title' => $plugin['title'])),
+        '#default_value' => $settings['enabled'],
       );
 
       $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
-
-      // Get the behavior settings.
       $behavior_elements = call_user_func(array($behavior_class, 'settingsForm'), $field, $instance);
       foreach ($behavior_elements as $key => &$behavior_element) {
         $behavior_element += array(
           '#states' => array(
             'visible' => array(
-              ':input[name="field[settings][handler_settings][behaviors][' . $name . ']"]' => array('checked' => TRUE),
+              ':input[name="field[settings][handler_settings][behaviors][' . $name . '][enabled]"]' => array('checked' => TRUE),
             ),
           ),
         );
       }
 
-      $element['behaviors'] += $behavior_elements;
+      // Get the behavior settings.
+      $element['behaviors'][$name] += $behavior_elements;
     }
   }
 
