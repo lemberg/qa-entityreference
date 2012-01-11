@@ -26,7 +26,7 @@ function entityreference_behavior_plugin_process(&$plugin, $info) {
     'description' => '',
     'settings level' => 'field',
     'access callback' => FALSE,
-    'enabled by default' => FALSE,
+    'force enable' => FALSE,
   );
 }
 
@@ -365,7 +365,7 @@ function entityreference_get_behavior_elements(&$element, $class, $field, $insta
       else {
         $settings = !empty($instance['settings']['behaviors'][$name]) ? $instance['settings']['behaviors'][$name] : array();
       }
-      $settings += array('enabled' => $plugin['enabled by default']);
+      $settings += array('enabled' => $plugin['force enable']);
       $element['behaviors'][$name] = array(
         '#type' => 'fieldset',
         '#title' => $plugin['title'],
