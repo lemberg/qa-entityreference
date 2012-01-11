@@ -13,8 +13,8 @@ function entityreference_ctools_plugin_directory($module, $plugin) {
  * Implements hook_ctools_plugin_type().
  */
 function entityreference_ctools_plugin_type() {
-  $plugins['selection'] = array('process' => 'entityreference_behavior_plugin_process');
-  $plugins['behavior'] = array();
+  $plugins['selection'] = array();
+  $plugins['behavior'] = array('process' => 'entityreference_behavior_plugin_process');
   return $plugins;
 }
 
