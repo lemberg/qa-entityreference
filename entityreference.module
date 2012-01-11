@@ -103,7 +103,7 @@ function entityreference_get_behavior_handlers($field, $instance = NULL) {
 
     $object_cache[$field['field_name']] = array();
     $behaviors = !empty($field['settings']['handler_settings']['behaviors']) ? $instance['settings']['behaviors'] : array();
-    if (!empty($instance)) {
+    if (!empty($instance['settings']['behaviors'])) {
       $behaviors = array_merge($behaviors, $instance['settings']['behaviors']);
     }
     foreach ($behaviors as $behavior => $settings) {
