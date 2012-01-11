@@ -5,7 +5,6 @@ $plugin = array(
   'class' => 'EntityReferenceFieldBehaviorExample',
   'weight' => 10,
   'settings level' => 'field',
-  'access callback' => 'entityreference_behavior_example_field_behavior_access',
 );
 
 class EntityReferenceFieldBehaviorExample implements EntityReference_BehaviorHandler {
@@ -48,11 +47,8 @@ class EntityReferenceFieldBehaviorExample implements EntityReference_BehaviorHan
     );
     return $form;
   }
-}
 
-/**
- * Access callback to determine if behavior should be available.
- */
-function entityreference_behavior_example_field_behavior_access($select_class, $field, $instance) {
-  return TRUE;
+  public function access() {
+    return TRUE;
+  }
 }

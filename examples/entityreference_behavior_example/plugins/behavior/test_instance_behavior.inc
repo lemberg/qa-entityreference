@@ -5,7 +5,6 @@ $plugin = array(
   'class' => 'EntityReferenceInstanceBehaviorExample',
   'weight' => 10,
   'settings level' => 'instance',
-  'access callback' => 'entityreference_behavior_example_instance_behavior_access',
 );
 
 class EntityReferenceInstanceBehaviorExample implements EntityReference_BehaviorHandler {
@@ -41,12 +40,16 @@ class EntityReferenceInstanceBehaviorExample implements EntityReference_Behavior
   /**
    * Generate a settings form for this handler.
    */
-  public static function settingsForm($field, $instance) {
+  public function settingsForm($field, $instance) {
     $form['test_instance'] = array(
       '#type' => 'checkbox',
       '#title' => t('Instance behavoir setting'),
     );
     return $form;
+  }
+
+  public function access() {
+    return TRUE;
   }
 }
 

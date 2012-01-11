@@ -397,13 +397,9 @@ function entityreference_get_accessible_behavior_plugins($select_class, $field, 
   ctools_include('plugins');
   $plugins = array('field' => array(), 'instance' => array());
   foreach (ctools_get_plugins('entityreference', 'behavior') as $name => $plugin) {
+    $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
     $level = $plugin['settings level'];
-    if ($func = $plugin['access callback']) {
-      if ($func($select_class, $field, $instance)) {
-        $plugins[$level][$name] = $plugin;
-      }
-    }
-    else {
+    if (call_user_func(array($behavior_class, 'access'))) {
       $plugins[$level][$name] = $plugin;
     }
   }

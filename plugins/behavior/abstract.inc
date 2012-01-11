@@ -45,5 +45,10 @@ interface EntityReference_BehaviorHandler {
   /**
    * Generate a settings form for this handler.
    */
-  public static function settingsForm($field, $instance);
+  public function settingsForm($field, $instance);
+
+  /**
+   * Determine if handler should appear.
+   */
+  public function access();
 }
