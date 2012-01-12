@@ -17,18 +17,19 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
   /**
    * Implements EntityReferenceHandler::getInstance().
    */
-  public static function getInstance($field) {
+  public static function getInstance($field, $instance) {
     $entity_type = $field['settings']['target_type'];
     if (class_exists($class_name = 'EntityReference_SelectionHandler_Generic_' . $entity_type)) {
-      return new $class_name($field);
+      return new $class_name($field, $instance);
     }
     else {
-      return new EntityReference_SelectionHandler_Generic($field);
+      return new EntityReference_SelectionHandler_Generic($field, $instance);
     }
   }
 
-  protected function __construct($field) {
+  protected function __construct($field, $instance) {
     $this->field = $field;
+    $this->instance = $instance;
   }
 
   /**

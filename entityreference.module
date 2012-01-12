@@ -148,7 +148,7 @@ function entityreference_get_behavior_handler($behavior, $field, $instance = NUL
  *
  * The handler contains most of the business logic of the field.
  */
-function entityreference_get_selection_handler($field) {
+function entityreference_get_selection_handler($field, $instance = NULL) {
   $object_cache = drupal_static(__FUNCTION__);
 
   if (!isset($object_cache[$field['field_name']])) {
@@ -157,10 +157,10 @@ function entityreference_get_selection_handler($field) {
     $class = ctools_plugin_load_class('entityreference', 'selection', $handler, 'class');
 
     if (class_exists($class)) {
-      $object_cache[$field['field_name']] = call_user_func(array($class, 'getInstance'), $field);
+      $object_cache[$field['field_name']] = call_user_func(array($class, 'getInstance'), $field, $instance);
     }
     else {
-      $object_cache[$field['field_name']] = EntityReference_SelectionHandler_Broken::getInstance($field);
+      $object_cache[$field['field_name']] = EntityReference_SelectionHandler_Broken::getInstance($field, $instance);
     }
   }
 
@@ -188,7 +188,7 @@ function entityreference_field_validate($entity_type, $entity, $field, $instance
     }
   }
 
-  $valid_ids = entityreference_get_selection_handler($field)->validateReferencableEntities(array_keys($ids));
+  $valid_ids = entityreference_get_selection_handler($field, $instance)->validateReferencableEntities(array_keys($ids));
 
   $invalid_entities = array_diff_key($ids, array_flip($valid_ids));
   if ($invalid_entities) {
@@ -557,22 +557,24 @@ function entityreference_field_widget_settings_form($field, $instance) {
 /**
  * Implements hook_options_list().
  */
-function entityreference_options_list($field) {
-  return entityreference_get_selection_handler($field)->getReferencableEntities();
+function entityreference_options_list($field, $instance = NULL) {
+  return entityreference_get_selection_handler($field, $instance)->getReferencableEntities();
 }
 
 /**
  * Implements hook_query_TAG_alter().
  */
 function entityreference_query_entityreference_alter(QueryAlterableInterface $query) {
-  entityreference_get_selection_handler($query->getMetadata('field'))->entityFieldQueryAlter($query);
+  $field = $query->getMetadata('field');
+  $instance = $query->getMetadata('instance');
+  entityreference_get_selection_handler($field, $instance)->entityFieldQueryAlter($query);
 }
 
 /**
  * Implements hook_field_widget_form().
  */
 function entityreference_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $handler = entityreference_get_selection_handler($field);
+  $handler = entityreference_get_selection_handler($field, $instance);
 
   if ($instance['widget']['type'] == 'entityreference_autocomplete' || $instance['widget']['type'] == 'entityreference_autocomplete_tags') {
 
@@ -688,7 +690,7 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
     return MENU_ACCESS_DENIED;
   }
 
-  $handler = entityreference_get_selection_handler($field);
+  $handler = entityreference_get_selection_handler($field, $instance);
 
   if ($type == 'tags') {
     // The user enters a comma-separated list of tags. We only autocomplete the last tag.
@@ -853,7 +855,7 @@ function entityreference_field_formatter_view($entity_type, $entity, $field, $in
 
   switch ($display['type']) {
     case 'entityreference_label':
-      $handler = entityreference_get_selection_handler($field);
+      $handler = entityreference_get_selection_handler($field, $instance);
 
       foreach ($items as $delta => $item) {
         $label = $handler->getLabel($item['entity']);
