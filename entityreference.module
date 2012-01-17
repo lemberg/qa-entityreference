@@ -153,6 +153,10 @@ function entityreference_get_selection_handler($field, $instance = NULL) {
 
   if (!isset($object_cache[$field['field_name']])) {
     ctools_include('plugins');
+
+    // Get all seletion plugins, as there seems to be an issue with
+    // ctools_plugin_load_class() not caching correctly.
+    ctools_get_plugins('entityreference', 'selection');
     $handler = $field['settings']['handler'];
     $class = ctools_plugin_load_class('entityreference', 'selection', $handler, 'class');
 
