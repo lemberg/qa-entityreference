@@ -183,7 +183,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
     }
 
     // Add a generic entity access tag to the query.
-    $query->addTag($this->field['settings']['target_type'] . '_access');
+    $query->addTag('entity_field_access');
     $query->addTag('entityreference');
     $query->addMetaData('field', $this->field);
 
