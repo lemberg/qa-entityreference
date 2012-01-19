@@ -10,7 +10,7 @@ files[] = entityreference.migrate.inc
 
 ; Our plugins.
 files[] = plugins/selection/abstract.inc
-files[] = plugins/selection/base.inc
+files[] = plugins/selection/base.class.php
 files[] = plugins/behavior/abstract.inc
 files[] = plugins/behavior/base.inc
 
