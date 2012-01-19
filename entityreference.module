@@ -24,7 +24,7 @@ function entityreference_ctools_plugin_type() {
 function entityreference_behavior_plugin_process(&$plugin, $info) {
   $plugin += array(
     'description' => '',
-    'settings level' => 'field',
+    'behavior type' => 'field',
     'access callback' => FALSE,
     'force enabled' => FALSE,
   );
@@ -428,7 +428,7 @@ function entityreference_get_accessible_behavior_plugins($select_class, $field, 
   $plugins = array('field' => array(), 'instance' => array());
   foreach (ctools_get_plugins('entityreference', 'behavior') as $name => $plugin) {
     $handler = entityreference_get_behavior_handler($name, $field, $instance);
-    $level = $plugin['settings level'];
+    $level = $plugin['behavior type'];
     if ($handler->access($select_class)) {
       $plugins[$level][$name] = $plugin;
     }

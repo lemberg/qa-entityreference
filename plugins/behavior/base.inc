@@ -7,7 +7,7 @@ class EntityReference_BehaviorHandler_Generic implements EntityReference_Behavio
     $plugin = ctools_get_plugins('entityreference', 'behavior', $behavior);
     $this->plugin = $plugin;
 
-    if ($plugin['settings level'] == 'field') {
+    if ($plugin['behavior type'] == 'field') {
       $this->settings = !empty($field['settings']['handler_settings']['behavior']) ? $field['settings']['handler_settings']['behavior'] : array();
     }
     else {

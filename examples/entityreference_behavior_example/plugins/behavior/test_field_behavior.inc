@@ -4,7 +4,7 @@ $plugin = array(
   'title' => t('Test behavior'),
   'class' => 'EntityReferenceFieldBehaviorExample',
   'weight' => 10,
-  'settings level' => 'field',
+  'behavior type' => 'field',
 );
 
 class EntityReferenceFieldBehaviorExample extends EntityReference_BehaviorHandler_Generic {

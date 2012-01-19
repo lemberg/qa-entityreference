@@ -4,7 +4,7 @@ $plugin = array(
   'title' => t('Test instance behavior'),
   'class' => 'EntityReferenceInstanceBehaviorExample',
   'weight' => 10,
-  'settings level' => 'instance',
+  'behavior type' => 'instance',
 );
 
 class EntityReferenceInstanceBehaviorExample extends EntityReference_BehaviorHandler_Generic {
