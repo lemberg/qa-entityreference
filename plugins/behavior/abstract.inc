@@ -61,3 +61,42 @@ interface EntityReference_BehaviorHandler {
   public function access($selection_class);
 }
 
+/**
+ * A null implementation of EntityReference_BehaviorHandler.
+ */
+class EntityReference_BehaviorHandler_Broken implements EntityReference_BehaviorHandler {
+
+  public function load($entity_type, $entities, $field, $instances, $langcode, &$items) {
+
+  }
+
+  public function validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+
+  }
+
+  public function presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+
+  }
+
+  public function insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
+
+  }
+
+  public function update($entity_type, $entity, $field, $instance, $langcode, &$items) {
+
+  }
+
+  public function delete($entity_type, $entity, $field, $instance, $langcode, &$items);
+
+  public function settingsForm() {
+    $form['behavior_handler'] = array(
+      '#markup' => t('The selected behavior handler is broken.'),
+    );
+    return $form;
+
+  }
+
+  public function access($selection_class) {
+    return FALSE;
+  }
+}

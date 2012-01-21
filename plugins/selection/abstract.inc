@@ -64,8 +64,8 @@ class EntityReference_SelectionHandler_Broken implements EntityReference_Selecti
   }
 
   public static function settingsForm($field, $instance) {
-    $form['handler'] = array(
-      '#markup' => t('The selected handler is broken.'),
+    $form['selection_handler'] = array(
+      '#markup' => t('The selected selection handler is broken.'),
     );
     return $form;
   }
