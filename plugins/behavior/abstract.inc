@@ -9,37 +9,44 @@
 interface EntityReference_BehaviorHandler {
 
   /**
-   * @TODO: document.
-   */
-  public function __construct($behavior, array $field, array $instance = NULL);
-
-  /**
-   * @TODO: document.
+   * Act on loading entity reference fields of entities.
+   *
+   * @see hook_field_load()
    */
   public function load($entity_type, $entities, $field, $instances, $langcode, &$items);
 
   /**
-   * @TODO: document.
+   * Act on validating an entity reference field.
+   *
+   * @see hook_field_validate()
    */
   public function validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors);
 
   /**
-   * @TODO: document.
+   * Act on presaving an entity reference field.
+   *
+   * @see hook_field_presave()
    */
   public function presave($entity_type, $entity, $field, $instance, $langcode, &$items);
 
   /**
-   * @TODO: document.
+   * Act after inserting an entity reference field.
+   *
+   * @see hook_field_insert()
    */
   public function insert($entity_type, $entity, $field, $instance, $langcode, &$items);
 
   /**
-   * @TODO: document.
+   * Act after updating an entity reference field.
+   *
+   * @see hook_field_update()
    */
   public function update($entity_type, $entity, $field, $instance, $langcode, &$items);
 
   /**
-   * @TODO: document.
+   * Act after deleting entity reference field.
+   *
+   * @see hook_field_delete()
    */
   public function delete($entity_type, $entity, $field, $instance, $langcode, &$items);
 
