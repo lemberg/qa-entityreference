@@ -86,7 +86,9 @@ class EntityReference_BehaviorHandler_Broken implements EntityReference_Behavior
 
   }
 
-  public function delete($entity_type, $entity, $field, $instance, $langcode, &$items);
+  public function delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
+
+  }
 
   public function settingsForm() {
     $form['behavior_handler'] = array(
