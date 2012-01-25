@@ -112,7 +112,7 @@ function entityreference_get_behavior_handlers($field, $instance = NULL) {
         continue;
       }
 
-      $object_cache[$identifier][] = entityreference_get_behavior_handler($behavior, $field, $instance);
+      $object_cache[$identifier][] = _entityreference_get_behavior_handler($behavior, $field, $instance);
     }
   }
 
@@ -125,7 +125,7 @@ function entityreference_get_behavior_handlers($field, $instance = NULL) {
  * @param $handler
  *   The behavior handler name.
  */
-function entityreference_get_behavior_handler($behavior, $field, $instance = NULL) {
+function _entityreference_get_behavior_handler($behavior, $field, $instance = NULL) {
   $object_cache = drupal_static(__FUNCTION__);
 
   if (!isset($object_cache[$behavior])) {
@@ -330,7 +330,7 @@ function entityreference_field_instance_settings_form($field, $instance) {
     $class = 'EntityReference_SelectionHandler_Broken';
   }
 
-  entityreference_get_behavior_elements($form, $class, $field, $instance, 'instance');
+  _entityreference_get_behavior_elements($form, $class, $field, $instance, 'instance');
 
   return $form;
 }
@@ -359,7 +359,7 @@ function entityreference_render_settings($element, $form_state) {
     $field['settings'] = $form_state['values']['field']['settings'] + $field['settings'];
   }
 
-  entityreference_get_behavior_elements($element, $class, $field, $instance, 'field');
+  _entityreference_get_behavior_elements($element, $class, $field, $instance, 'field');
 
   $element += call_user_func(array($class, 'settingsForm'), $field, $instance);
   return $element;
@@ -368,7 +368,7 @@ function entityreference_render_settings($element, $form_state) {
 /**
  * Get the field or instance elements for the field configuration.
  */
-function entityreference_get_behavior_elements(&$element, $class, $field, $instance, $level) {
+function _entityreference_get_behavior_elements(&$element, $class, $field, $instance, $level) {
    // Add the accessible behavior handlers.
   $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
 
@@ -423,7 +423,7 @@ function entityreference_get_accessible_behavior_plugins($select_class, $field, 
   ctools_include('plugins');
   $plugins = array('field' => array(), 'instance' => array());
   foreach (ctools_get_plugins('entityreference', 'behavior') as $name => $plugin) {
-    $handler = entityreference_get_behavior_handler($name, $field, $instance);
+    $handler = _entityreference_get_behavior_handler($name, $field, $instance);
     $level = $plugin['behavior type'];
     if ($handler->access($select_class)) {
       $plugins[$level][$name] = $plugin;
