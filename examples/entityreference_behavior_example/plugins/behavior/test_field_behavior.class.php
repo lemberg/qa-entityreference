@@ -1,6 +1,6 @@
 <?php
 
-class EntityReferenceFieldBehaviorExample extends EntityReference_BehaviorHandler_Generic {
+class EntityReferenceFieldBehaviorExample extends EntityReference_BehaviorHandler_Abstract {
 
   public function load($entity_type, $entities, $field, $instances, $langcode, &$items) {
     drupal_set_message('Do something on load!');
