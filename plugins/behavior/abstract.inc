@@ -113,10 +113,9 @@ class EntityReference_BehaviorHandler_Broken extends EntityReference_BehaviorHan
       '#markup' => t('The selected behavior handler is broken.'),
     );
     return $form;
-
   }
 
   public function access($selection_class) {
-    return FALSE;
+    return TRUE;
   }
 }

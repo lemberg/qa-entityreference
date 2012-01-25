@@ -369,7 +369,7 @@ function entityreference_render_settings($element, $form_state) {
  * Get the field or instance elements for the field configuration.
  */
 function _entityreference_get_behavior_elements(&$element, $class, $field, $instance, $level) {
-   // Add the accessible behavior handlers.
+  // Add the accessible behavior handlers.
   $behavior_plugins = entityreference_get_accessible_behavior_plugins($class, $field, $instance);
 
   if ($behavior_plugins[$level]) {
@@ -395,8 +395,8 @@ function _entityreference_get_behavior_elements(&$element, $class, $field, $inst
         '#disabled' => $plugin['force enabled'],
       );
 
-      $behavior_class = ctools_plugin_load_class('entityreference', 'behavior', $name, 'class');
-      if ($behavior_elements = call_user_func(array($behavior_class, 'settingsForm'))) {
+      $handler = _entityreference_get_behavior_handler($name, $field, $instance);
+      if ($behavior_elements = $handler->settingsForm()) {
         $enable_element = $level == 'field' ? 'field[settings][handler_settings][behaviors]' : 'instance[settings][behaviors]';
         foreach ($behavior_elements as $key => &$behavior_element) {
           $behavior_element += array(
