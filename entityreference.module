@@ -213,6 +213,24 @@ function entityreference_field_validate($entity_type, $entity, $field, $instance
  * Adds the target type to the field data structure when saving.
  */
 function entityreference_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  $field_name = $field['field_name'];
+  if (!empty($entity->original) && $entity->original->{$field_name} != $entity->{$field_name}) {
+    // Re-add references to entities the user do not have access to.
+    $original_wrapper = entity_metadata_wrapper($entity_type, $entity->original);
+    $ids = array();
+    foreach ($wrapper->{$field_name} as $wrapper_field) {
+      if (!$wrapper_field->entityAccess('view')) {
+        // Get the inaccessible entity ID.
+        $ids = $wrapper_field->getIdentifier();
+      }
+    }
+    if ($ids) {
+      $wrapper = entity_metadata_wrapper($entity_type, $entity);
+      foreach ($ids as $id) {
+        $wrapper->{$field_name}[] = $id;
+      }
+    }
+  }
   // Invoke the behaviors.
   foreach (entityreference_get_behavior_handlers($field, $instance) as $handler) {
     $handler->presave($entity_type, $entity, $field, $instance, $langcode, $items);
