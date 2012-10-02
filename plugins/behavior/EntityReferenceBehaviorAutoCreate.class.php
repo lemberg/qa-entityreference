@@ -6,15 +6,15 @@ class EntityReferenceBehaviorAutoCreate extends EntityReference_BehaviorHandler_
   * Override EntityReference_BehaviorHandler_Abstract::access().
   */
   public function access($field, $instance) {
-    if ($field['settings']['target_type'] != 'taxonomy_term' && count($field['settings']['handler_settings']['target_bundles']) != 1) {
-      return;
-    }
-    if ($instance['widget']['type'] == 'entityreference_autocomplete_tags') {
+    $entity_info = entity_get_info($instance['entity_type']);
+
+    if (!empty($entity_info['entityreferene autocreate']) && count($field['settings']['handler_settings']['target_bundles']) != 1) {
       return;
     }
 
-    $entity_info = entity_get_info($instance['entity_type']);
-    return !empty($entity_info['entityreferene autocreate']);
+    if ($instance['widget']['type'] != 'entityreference_autocomplete_tags') {
+      return;
+    }
   }
 
  /**

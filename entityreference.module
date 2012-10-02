@@ -252,6 +252,9 @@ function entityreference_field_validate($entity_type, $entity, $field, $instance
     $invalid_entities = array_diff_key($ids, array_flip($valid_ids));
     if ($invalid_entities) {
       foreach ($invalid_entities as $id => $delta) {
+        if ($id == 'autocreate') {
+          continue;
+        }
         $errors[$field['field_name']][$langcode][$delta][] = array(
           'error' => 'entityreference_invalid_entity',
           'message' => t('The referenced entity (@type: @id) is invalid.', array('@type' => $field['settings']['target_type'], '@id' => $id)),
