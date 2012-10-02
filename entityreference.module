@@ -925,6 +925,12 @@ function _entityreference_autocomplete_tags_validate($element, &$form_state, $fo
   if (!empty($element['#value'])) {
     $entities = drupal_explode_tags($element['#value']);
     $value = array();
+    $handler = entityreference_get_selection_handler($field, $instance);
+
+    if (!empty($instance['settings']['behaviors']['autocreate']['status'])) {
+      $behavior_handler = _entityreference_get_behavior_handler('autocreate');
+    }
+
     foreach ($entities as $entity) {
       // Indicate if a value was found, or we might need to create a new
       // one.
@@ -935,16 +941,15 @@ function _entityreference_autocomplete_tags_validate($element, &$form_state, $fo
           'target_id' => $matches[1],
         );
       }
-      else {
+      elseif (empty($instance['settings']['behaviors']['autocreate']['status'])) {
         // Try to get a match from the input string when the user didn't use the
         // autocomplete but filled in a value manually.
-        $handler = entityreference_get_selection_handler($field, $instance);
         $value[] = array(
           'target_id' => $handler->validateAutocompleteInput($entity, $element, $form_state, $form),
         );
       }
-      if (!$found && !empty($instance['settings']['behaviors']['autocreate']['status'])) {
-        $value[] = $handler->prepareAutoCreate($field, $instance, $element, $form_state, $form);
+      if (!$found && $behavior_handler) {
+        $value[] = $behavior_handler->prepareAutoCreate($field, $instance, $element, $form_state, $form);
       }
     }
   }

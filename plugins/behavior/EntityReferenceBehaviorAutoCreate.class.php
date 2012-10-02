@@ -15,6 +15,7 @@ class EntityReferenceBehaviorAutoCreate extends EntityReference_BehaviorHandler_
     if ($instance['widget']['type'] != 'entityreference_autocomplete_tags') {
       return;
     }
+    return TRUE;
   }
 
  /**

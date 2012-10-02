@@ -207,9 +207,12 @@ abstract class EntityReference_BehaviorHandler_Abstract implements EntityReferen
   }
 
   public function prepareAutoCreate($field, $instance, $element, &$form_state, $form) {
-    $entity_info = entity_get_info($instance['entity_type']);
-    $function = $entity_info['entityreferene autocreate'];
-    return $function($field, $instance, $element, $form_state, $form);
+    $entity_type = $instance['entity_type'];
+    $entity_info = entity_get_info($entity_type);
+    $function = $entity_info['creation callback'];
+    $values
+    dpm($function($values, $instance['entity_type']))
+    return array();
   }
 }
 
