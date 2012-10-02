@@ -20,6 +20,35 @@ function entityreference_init() {
 }
 
 /**
+ * Implements hook_entity_info_alter().
+ *
+ * Add "entityreferene autocreate" callback on behalf of taxonomy.
+ */
+function entityreference_entity_info_alter(&$entity_info) {
+  $entity_info['taxonomy_term']['entityreferene autocreate'] = 'entityreferene_taxonomy_term_autocreate';
+}
+
+/**
+ * Entityreferene autocreate callback.
+ *
+ * @return
+ *   Array with the term values.
+ *
+ * @see EntityReference_BehaviorHandler::prepareAutoCreate()
+ * @see _entityreference_autocomplete_tags_validate()
+ */
+function entityreferene_taxonomy_term_autocreate($field, $instance, $element, &$form_state, $form) {
+  $vocabulary = taxonomy_vocabulary_load($element['#vid']);
+  $term = array(
+    'target_id' => 'autocreate',
+    'vid' => $vocabulary->vid,
+    'name' => $entity,
+    'vocabulary_machine_name' => $vocabulary->machine_name,
+  );
+  return $term;
+}
+
+/**
  * Implements hook_ctools_plugin_type().
  */
 function entityreference_ctools_plugin_type() {
@@ -749,26 +778,39 @@ function _entityreference_autocomplete_validate($element, &$form_state, $form) {
   form_set_value($element, $value, $form_state);
 }
 
+/**
+ * Validate handler; Rebuild the target IDs based on entered text.
+ */
 function _entityreference_autocomplete_tags_validate($element, &$form_state, $form) {
+  $field_name = $element['#field_name'];
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($element['#entity_type'], $field_name, $element['#bundle']);
+
   $value = array();
   // If a value was entered into the autocomplete...
   if (!empty($element['#value'])) {
     $entities = drupal_explode_tags($element['#value']);
     $value = array();
     foreach ($entities as $entity) {
+      // Indicate if a value was found, or we might need to create a new
+      // one.
+      $found = FALSE;
       // Take "label (entity id)', match the id from parenthesis.
       if (preg_match("/.+\((\d+)\)/", $entity, $matches)) {
         $value[] = array(
           'target_id' => $matches[1],
         );
-      } else {
+      }
+      else {
         // Try to get a match from the input string when the user didn't use the
         // autocomplete but filled in a value manually.
-        $field = field_info_field($element['#field_name']);
-        $handler = entityreference_get_selection_handler($field);
+        $handler = entityreference_get_selection_handler($field, $instance);
         $value[] = array(
           'target_id' => $handler->validateAutocompleteInput($entity, $element, $form_state, $form),
         );
+      }
+      if (!$found && !empty($instance['settings']['behaviors']['autocreate']['status'])) {
+        $value[] = $handler->prepareAutoCreate($field, $instance, $element, $form_state, $form);
       }
     }
   }

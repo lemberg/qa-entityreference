@@ -116,6 +116,12 @@ interface EntityReference_BehaviorHandler {
    * Determine if handler should appear.
    */
   public function access($field, $instance);
+
+  /**
+   * Determine if a an entity can be auto created from an autocomplete
+   * widget.
+   */
+  public function prepareAutoCreate($field, $instance, $element, &$form_state, $form);
 }
 
 /**
@@ -171,6 +177,12 @@ abstract class EntityReference_BehaviorHandler_Abstract implements EntityReferen
 
   public function access($field, $instance) {
     return TRUE;
+  }
+
+  public function prepareAutoCreate($field, $instance, $element, &$form_state, $form) {
+    $entity_info = entity_get_info($instance['entity_type']);
+    $function = $entity_info['entityreferene autocreate'];
+    return $function($field, $instance, $element, $form_state, $form);
   }
 }
 
