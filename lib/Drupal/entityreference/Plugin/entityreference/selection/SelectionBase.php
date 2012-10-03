@@ -7,9 +7,12 @@
 
 namespace Drupal\entityreference\Plugin\entityreference\selection;
 
+use Drupal\Core\Entity\EntityFieldQuery;
+
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 
+use Drupal\field\Plugin\PluginSettingsBase;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
 
 /**
@@ -18,7 +21,7 @@ use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
  * @Plugin(
  *   id = "base",
  *   module = "entityreference",
- *   label = @Translation("Base")
+ *   label = @Translation("Simple selection")
  * )
  */
 class SelectionBase extends PluginSettingsBase implements SelectionInterface {
@@ -39,11 +42,11 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
       return new $class_name($field, $instance, $entity_type, $entity);
     }
     else {
-      return new EntityReference_SelectionHandler_Generic($field, $instance, $entity_type, $entity);
+      return new SelectionBase($field, $instance, $entity_type, $entity);
     }
   }
 
-  protected function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+  public function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
     $this->field = $field;
     $this->instance = $instance;
     $this->entity_type = $entity_type;
@@ -171,7 +174,6 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
    * Implements EntityReferenceHandler::getReferencableEntities().
    */
   public function getReferencableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
-    $options = array();
     $entity_type = $this->field['settings']['target_type'];
 
     $query = $this->buildEntityFieldQuery($match, $match_operator);
@@ -179,13 +181,16 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
       $query->range(0, $limit);
     }
 
-    $results = $query->execute();
+    $result = $query->execute();
 
-    if (!empty($results[$entity_type])) {
-      $entities = entity_load($entity_type, array_keys($results[$entity_type]));
-      foreach ($entities as $entity_id => $entity) {
-        $options[$entity_id] = check_plain($this->getLabel($entity));
-      }
+    if (empty($result[$entity_type])) {
+      return array();
+    }
+
+    $options = array();
+    $entities = entity_load_multiple($entity_type, array_keys($result[$entity_type]));
+    foreach ($entities as $entity_id => $entity) {
+      $options[$entity_id] = check_plain($entity->label());
     }
 
     return $options;
@@ -312,12 +317,5 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
     // Restore the tags and metadata.
     $query->alterTags = $old_tags;
     $query->alterMetaData = $old_metadata;
-  }
-
-  /**
-   * Implements EntityReferenceHandler::getLabel().
-   */
-  public function getLabel($entity) {
-    return entity_label($this->field['settings']['target_type'], $entity);
   }
 }
