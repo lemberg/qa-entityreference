@@ -464,10 +464,10 @@ function entityreference_field_widget_form(&$form, &$form_state, $field, $instan
     }
 
     // Load those entities and loop through them to extract their labels.
-    $entities = entity_load($field['settings']['target_type'], $entity_ids);
+    $entities = entity_load_multiple($field['settings']['target_type'], $entity_ids);
 
     foreach ($entities as $entity_id => $entity_item) {
-      $label = $handler->getLabel($entity_item);
+      $label = $entity_item->label();
       $key = "$label ($entity_id)";
       // Labels containing commas or quotes must be wrapped in quotes.
       if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
@@ -776,7 +776,7 @@ function entityreference_field_formatter_prepare_view($entity_type, $entities, $
   }
 
   if ($target_ids) {
-    $target_entities = entity_load($field['settings']['target_type'], $target_ids);
+    $target_entities = entity_load_multiple($field['settings']['target_type'], $target_ids);
   }
   else {
     $target_entities = array();
@@ -816,9 +816,9 @@ function entityreference_field_formatter_view($entity_type, $entity, $field, $in
   switch ($display['type']) {
     case 'entityreference_label':
       $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
-
       foreach ($items as $delta => $item) {
-        $label = $handler->getLabel($item['entity']);
+        $entity = $item['entity'];
+        $label = $entity->label();
         // If the link is to be displayed and the entity has a uri, display a link.
         // Note the assignment ($url = ) here is intended to be an assignment.
         if ($display['settings']['link'] && ($uri = entity_uri($field['settings']['target_type'], $item['entity']))) {
@@ -866,11 +866,8 @@ function entityreference_field_formatter_view($entity_type, $entity, $field, $in
 class EntityReferenceRecursiveRenderingException extends Exception {}
 
 /**
- * Implements hook_views_api().
+ * @todo: We will need something here.
  */
-function entityreference_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'entityreference') . '/views',
-  );
+function entity_access() {
+  return TRUE;
 }
