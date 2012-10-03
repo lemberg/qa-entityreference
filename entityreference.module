@@ -821,7 +821,7 @@ function entityreference_field_formatter_view($entity_type, $entity, $field, $in
         $label = $entity->label();
         // If the link is to be displayed and the entity has a uri, display a link.
         // Note the assignment ($url = ) here is intended to be an assignment.
-        if ($display['settings']['link'] && ($uri = entity_uri($field['settings']['target_type'], $item['entity']))) {
+        if ($display['settings']['link'] && ($uri = $entity->uri())) {
           $result[$delta] = array('#markup' => l($label, $uri['path'], $uri['options']));
         }
         else {
