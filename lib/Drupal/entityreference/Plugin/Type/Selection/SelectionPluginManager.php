@@ -35,7 +35,7 @@ class SelectionPluginManager extends PluginManagerBase {
    */
   public function __construct() {
     $this->baseDiscovery = new AnnotatedClassDiscovery('entityreference', 'selection');
-    $this->discovery = new CacheDecorator($this->baseDiscovery, $this->cache_id, $this->cache_bin);
+    $this->discovery = new CacheDecorator($this->baseDiscovery, $this->cache_key);
   }
 
   /**

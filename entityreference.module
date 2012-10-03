@@ -2,17 +2,6 @@
 
 
 /**
- * CTools callback; Process the behavoir plugins.
- */
-function entityreference_behavior_plugin_process(&$plugin, $info) {
-  $plugin += array(
-    'description' => '',
-    'access callback' => FALSE,
-    'force enabled' => FALSE,
-  );
-}
-
-/**
  * Implements hook_field_info().
  */
 function entityreference_field_info() {

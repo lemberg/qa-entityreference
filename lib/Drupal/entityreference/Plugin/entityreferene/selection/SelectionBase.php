@@ -2,18 +2,23 @@
 
 /**
  * @file
- * Definition of Drupal\entityreference\Plugin\Type\Selection\SelectionBase.
+ * Definition of Drupal\entityreference\Plugin\entityreference\selection\SelectionBase.
  */
 
-namespace Drupal\entityreference\Plugin\Type\Selection;
+namespace Drupal\entityreference\Plugin\entityreference\selection;
 
-use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
 
 /**
- * Base class for 'Entityreference selection' plugin implementations.
+ * Plugin implementation of the 'selection' entityreference.
+ *
+ * @Plugin(
+ *   id = "base",
+ *   module = "entityreference",
+ *   label = @Translation("Base"),
+ * )
  */
-abstract class SelectionBase implements SelectionInterface {
+class SelectionBase implements SelectionInterface {
 
   /**
    * Implements EntityReferenceHandler::getInstance().
