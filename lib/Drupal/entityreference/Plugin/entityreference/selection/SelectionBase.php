@@ -7,6 +7,9 @@
 
 namespace Drupal\entityreference\Plugin\entityreference\selection;
 
+use Drupal\Core\Annotation\Plugin;
+use Drupal\Core\Annotation\Translation;
+
 use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
 
 /**
@@ -15,10 +18,10 @@ use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
  * @Plugin(
  *   id = "base",
  *   module = "entityreference",
- *   label = @Translation("Base"),
+ *   label = @Translation("Base")
  * )
  */
-class SelectionBase implements SelectionInterface {
+class SelectionBase extends PluginSettingsBase implements SelectionInterface {
 
   /**
    * Implements EntityReferenceHandler::getInstance().
