@@ -154,7 +154,7 @@ function entityreference_field_settings_form($field, $instance, $has_data) {
   $form = array(
     '#type' => 'container',
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'entityreference') . '/entityreference.admin.css'),
+      'css' => array(drupal_get_path('module', 'entityreference') . '/css/entityreference.admin.css'),
     ),
     '#process' => array(
       '_entityreference_field_settings_process',
