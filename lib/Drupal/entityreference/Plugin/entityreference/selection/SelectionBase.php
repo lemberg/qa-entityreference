@@ -12,6 +12,8 @@ use Drupal\Core\Entity\EntityFieldQuery;
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 
+use Drupal\Core\Database\Query\AlterableInterface;
+
 use Drupal\field\Plugin\PluginSettingsBase;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
 
@@ -41,6 +43,7 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
     // TODO: Since we are using PSR-0 how can we allow having any entity?
     // e.g. $class_name = 'SelectionEntityType' . $target_entity_type
 
+    // Convert the entity type name to camel-case.
     $camel_case = str_replace('_', ' ', $target_entity_type);
     $camel_case = ucwords($camel_case);
     $camel_case = str_replace(' ', ' ', $camel_case);

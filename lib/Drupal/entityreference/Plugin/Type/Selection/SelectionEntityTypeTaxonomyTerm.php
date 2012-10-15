@@ -10,6 +10,8 @@
 namespace Drupal\entityreference\Plugin\Type\Selection;
 
 use Drupal\Core\Entity\EntityFieldQuery;
+use Drupal\Core\Database\Query\AlterableInterface;
+
 use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
 
