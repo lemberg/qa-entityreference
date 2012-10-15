@@ -287,7 +287,7 @@ function entityreference_field_instance_settings_form($field, $instance) {
   $form['settings'] = array(
     '#type' => 'container',
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'entityreference') . '/entityreference.admin.css'),
+      'css' => array(drupal_get_path('module', 'entityreference') . '/css/entityreference.admin.css'),
     ),
     '#weight' => 10,
     '#tree' => TRUE,
