@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Core\Database\Query\AlterableInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Implements hook_field_info().
@@ -666,7 +667,7 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
     }
   }
 
-  drupal_json_output($matches);
+  return new JsonResponse($matches);
 }
 
 /**
