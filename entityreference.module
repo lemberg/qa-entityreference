@@ -433,7 +433,7 @@ function entityreference_options_list($field, $instance = NULL, $entity_type = N
 /**
  * Implements hook_query_TAG_alter().
  */
-function entityreference_query_entityreference_alter(QueryAlterableInterface $query) {
+function entityreference_query_entityreference_alter(AlterableInterface $query) {
   $handler = $query->getMetadata('entityreference_selection_handler');
   $handler->entityFieldQueryAlter($query);
 }
@@ -493,8 +493,7 @@ function entityreference_field_widget_form(&$form, &$form_state, $field, $instan
     // Most webservers collapse two consecutive slashes.
     $id = 'NULL';
     if ($entity) {
-      list($eid) = entity_extract_ids($entity_type, $entity);
-      if ($eid) {
+      if ($eid = $entity->id()) {
         $id = $eid;
       }
     }
