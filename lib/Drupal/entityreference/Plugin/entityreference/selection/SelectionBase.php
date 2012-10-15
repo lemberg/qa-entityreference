@@ -301,8 +301,7 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
   /**
    * Implements EntityReferenceHandler::entityFieldQueryAlter().
    */
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-
+  public function entityFieldQueryAlter(AlterableInterface $query) {
   }
 
   /**
@@ -311,7 +310,7 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
    * This allow Entity Reference to add a tag to an existing query, to ask
    * access control mechanisms to alter it again.
    */
-  protected function reAlterQuery(SelectQueryInterface $query, $tag, $base_table) {
+  protected function reAlterQuery(AlterableInterface $query, $tag, $base_table) {
     // Save the old tags and metadata.
     // For some reason, those are public.
     $old_tags = $query->alterTags;

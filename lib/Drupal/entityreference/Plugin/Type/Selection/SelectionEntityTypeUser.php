@@ -32,7 +32,7 @@ class SelectionEntityTypeUser extends SelectionBase {
     return $query;
   }
 
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
+  public function entityFieldQueryAlter(AlterableInterface $query) {
     if (user_access('administer users')) {
       // In addition, if the user is administrator, we need to make sure to
       // match the anonymous user, that doesn't actually have a name in the

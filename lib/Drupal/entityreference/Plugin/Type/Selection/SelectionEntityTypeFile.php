@@ -15,7 +15,7 @@ use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
 class SelectionEntityTypeFile extends SelectionBase {
 
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
+  public function entityFieldQueryAlter(AlterableInterface $query) {
     // Core forces us to know about 'permanent' vs. 'temporary' files.
     $tables = $query->getTables();
     $base_table = key($tables);

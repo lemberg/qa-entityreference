@@ -15,7 +15,7 @@ use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
 class SelectionEntityTypeComment extends SelectionBase {
 
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
+  public function entityFieldQueryAlter(AlterableInterface $query) {
     // Adding the 'comment_access' tag is sadly insufficient for comments: core
     // requires us to also know about the concept of 'published' and
     // 'unpublished'.

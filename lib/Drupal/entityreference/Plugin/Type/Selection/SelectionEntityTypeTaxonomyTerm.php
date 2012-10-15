@@ -15,7 +15,7 @@ use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
 class SelectionEntityTypeTaxonomyTerm extends SelectionBase {
 
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
+  public function entityFieldQueryAlter(AlterableInterface $query) {
     // The Taxonomy module doesn't implement any proper taxonomy term access,
     // and as a consequence doesn't make sure that taxonomy terms cannot be viewed
     // when the user doesn't have access to the vocabulary.
