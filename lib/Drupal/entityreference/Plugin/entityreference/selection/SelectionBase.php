@@ -38,7 +38,14 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
       return EntityReference_SelectionHandler_Broken::getInstance($field, $instance);
     }
 
-    if (class_exists($class_name = 'EntityReference_SelectionHandler_Generic_' . $target_entity_type)) {
+    // TODO: Since we are using PSR-0 how can we allow having any entity?
+    // e.g. $class_name = 'SelectionEntityType' . $target_entity_type
+
+    $camel_case = str_replace('_', ' ', $target_entity_type);
+    $camel_case = ucwords($camel_case);
+    $camel_case = str_replace(' ', ' ', $camel_case);
+
+    if (class_exists($class_name = 'SelectionEntityType' . $camel_case)) {
       return new $class_name($field, $instance, $entity_type, $entity);
     }
     else {
