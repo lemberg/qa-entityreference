@@ -29,6 +29,8 @@ function entityreference_field_info() {
 
 /**
  * Implements hook_flush_caches().
+ *
+ * @todo: Fix...
  */
 function entityreference_flush_caches() {
   // Because of the intricacies of the info hooks, we are forced to keep a
