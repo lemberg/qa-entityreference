@@ -379,6 +379,10 @@ function entityreference_field_widget_info() {
 
 /**
  * Implements hook_field_widget_info_alter().
+ *
+ * @todo: Move this to plugin alteration after:
+ * http://drupal.org/node/1751234
+ * http://drupal.org/node/1705702
  */
 function entityreference_field_widget_info_alter(&$info) {
   if (module_exists('options')) {
