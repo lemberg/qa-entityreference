@@ -7,7 +7,7 @@
  * Provide entity type specific access control of the node entity type.
  */
 
-namespace Drupal\entityreference\Plugin\entityreference\selection;
+namespace Drupal\entityreference\Plugin\Type\Selection;
 
 use Drupal\Core\Entity\EntityFieldQuery;
 use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;

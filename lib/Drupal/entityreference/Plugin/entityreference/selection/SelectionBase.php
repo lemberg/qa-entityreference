@@ -45,7 +45,7 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
     $camel_case = ucwords($camel_case);
     $camel_case = str_replace(' ', ' ', $camel_case);
 
-    if (class_exists($class_name = 'Drupal\entityreference\Plugin\Type\Selection\SelectionEntityType' . $camel_case)) {
+    if (class_exists($class_name = '\Drupal\entityreference\Plugin\Type\Selection\SelectionEntityType' . $camel_case)) {
       return new $class_name($field, $instance, $entity_type, $entity);
     }
     else {
