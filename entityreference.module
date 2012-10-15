@@ -546,7 +546,6 @@ function _entityreference_autocomplete_validate($element, &$form_state, $form) {
       $value = $handler->validateAutocompleteInput($element['#value'], $element, $form_state, $form);
     }
   }
-  // Update the value of this element so the field can validate the product IDs.
   form_set_value($element, $value, $form_state);
 }
 
@@ -574,7 +573,6 @@ function _entityreference_autocomplete_tags_validate($element, &$form_state, $fo
       }
     }
   }
-  // Update the value of this element so the field can validate the product IDs.
   form_set_value($element, $value, $form_state);
 }
 
