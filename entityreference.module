@@ -632,7 +632,9 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
   $entity = NULL;
   if ($entity_id !== 'NULL') {
     $entity = entity_load_single($entity_type, $entity_id);
-    if (!$entity || !entity_access('view', $entity_type, $entity)) {
+    // TODO: Improve when we have entity_access().
+    $entity_access = $entity_type == 'node' ? node_access('view', $entity) : TRUE;
+    if (!$entity || !$entity_access) {
       return MENU_ACCESS_DENIED;
     }
   }
@@ -769,6 +771,10 @@ function entityreference_field_formatter_settings_summary($field, $instance, $vi
 
 /**
  * Implements hook_field_formatter_prepare_view().
+ *
+ * Mark the accessible IDs a user can see. We do not unset unaccessible
+ * values, as other may want to act on those values, even if they can
+ * not be accessed.
  */
 function entityreference_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
   $target_ids = array();
@@ -789,26 +795,27 @@ function entityreference_field_formatter_prepare_view($entity_type, $entities, $
     $target_entities = array();
   }
 
-  // Iterate through the fieldable entities again to attach the loaded data.
+  // Iterate through the fieldable entities again to attach the loaded
+  // data.
   foreach ($entities as $id => $entity) {
-    $rekey = FALSE;
 
     foreach ($items[$id] as $delta => $item) {
-      // Check whether the referenced entity could be loaded and that the user has access to it.
-      if (isset($target_entities[$item['target_id']]) && entity_access('view', $field['settings']['target_type'], $target_entities[$item['target_id']])) {
-        // Replace the instance value with the term data.
-        $items[$id][$delta]['entity'] = $target_entities[$item['target_id']];
-      }
-      // Otherwise, unset the instance value, since the entity does not exists or should not be accessible.
-      else {
-        unset($items[$id][$delta]);
-        $rekey = TRUE;
-      }
-    }
+      $items[$id][$delta]['entity'] = $target_entities[$item['target_id']];
 
-    if ($rekey) {
-      // Rekey the items array.
-      $items[$id] = array_values($items[$id]);
+      if (!isset($target_entities[$item['target_id']])) {
+        continue;
+      }
+
+      $entity = $target_entities[$item['target_id']];
+
+      // TODO: Improve when we have entity_access().
+      $entity_access = $entity_type == 'node' ? node_access('view', $entity) : TRUE;
+      if (!$entity_access) {
+        continue;
+      }
+
+      // Mark item as accessible.
+      $items[$id][$delta]['access'] = TRUE;
     }
   }
 }
@@ -819,6 +826,13 @@ function entityreference_field_formatter_prepare_view($entity_type, $entities, $
 function entityreference_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $result = array();
   $settings = $display['settings'];
+
+  // Remove unaccessible items.
+  foreach ($items as $delta => $item) {
+    if (empty($item['access'])) {
+      unset($items[$delta]);
+    }
+  }
 
   switch ($display['type']) {
     case 'entityreference_label':
@@ -865,11 +879,4 @@ function entityreference_field_formatter_view($entity_type, $entity, $field, $in
   }
 
   return $result;
-}
-
-/**
- * @todo: We will need something here.
- */
-function entity_access() {
-  return TRUE;
 }
