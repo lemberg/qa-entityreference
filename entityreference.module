@@ -91,15 +91,13 @@ function entityreference_get_plugin_manager($plugin_type) {
  */
 function entityreference_get_selection_handler($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
   $plugin = entityreference_get_plugin_manager('selection')->getDefinition($field['settings']['handler']);
-
   $class = $plugin['class'];
 
   if (class_exists($class)) {
     return call_user_func(array($class, 'getInstance'), $field, $instance, $entity_type, $entity);
   }
-  else {
-    return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity_type, $entity);
-  }
+
+  return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity_type, $entity);
 }
 
 /**
