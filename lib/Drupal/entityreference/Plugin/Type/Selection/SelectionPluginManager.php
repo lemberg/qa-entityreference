@@ -17,13 +17,6 @@ use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 class SelectionPluginManager extends PluginManagerBase {
 
   /**
-   * Overrides Drupal\Component\Plugin\PluginManagerBase:$defaults.
-   */
-  protected $defaults = array(
-    'force_enabled' => FALSE,
-  );
-
-  /**
    * The cache id used for plugin definitions.
    *
    * @var string
