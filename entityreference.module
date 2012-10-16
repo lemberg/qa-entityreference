@@ -128,12 +128,13 @@ function entityreference_field_validate($entity_type, $entity, $field, $instance
 
 /**
  * Implements hook_field_settings_form().
+ *
+ * The field settings infrastructure is not AJAX enabled by default,
+ * because it doesn't pass over the $form_state.
+ * Build the whole form into a #process in which we actually have access
+ * to the form state.
  */
 function entityreference_field_settings_form($field, $instance, $has_data) {
-  // The field settings infrastructure is not AJAX enabled by default,
-  // because it doesn't pass over the $form_state.
-  // Build the whole form into a #process in which we actually have access
-  // to the form state.
   $form = array(
     '#type' => 'container',
     '#attached' => array(
