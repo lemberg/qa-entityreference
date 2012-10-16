@@ -94,8 +94,6 @@ function entityreference_get_selection_handler($field, $instance = NULL, $entity
 
   $class = $plugin['class'];
 
-  return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity_type, $entity);
-
   if (class_exists($class)) {
     return call_user_func(array($class, 'getInstance'), $field, $instance, $entity_type, $entity);
   }
