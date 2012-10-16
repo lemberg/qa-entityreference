@@ -3,6 +3,7 @@
 use Drupal\Core\Database\Query\AlterableInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
 use Drupal\entityreference\EntityReferenceRecursiveRenderingException;
 
 /**
@@ -93,12 +94,13 @@ function entityreference_get_selection_handler($field, $instance = NULL, $entity
 
   $class = $plugin['class'];
 
+  return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity_type, $entity);
+
   if (class_exists($class)) {
     return call_user_func(array($class, 'getInstance'), $field, $instance, $entity_type, $entity);
   }
   else {
-    // TODO
-    return EntityReference_SelectionHandler_Broken::getInstance($field, $instance, $entity_type, $entity);
+    return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity_type, $entity);
   }
 }
 

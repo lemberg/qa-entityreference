@@ -16,6 +16,7 @@ use Drupal\Core\Database\Query\AlterableInterface;
 
 use Drupal\field\Plugin\PluginSettingsBase;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
+use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
 
 /**
  * Plugin implementation of the 'selection' entityreference.
@@ -37,7 +38,7 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
     // Check if the entity type does exist and has a base table.
     $entity_info = entity_get_info($target_entity_type);
     if (empty($entity_info['base table'])) {
-      return EntityReference_SelectionHandler_Broken::getInstance($field, $instance);
+      return \Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance);
     }
 
     // TODO: Since we are using PSR-0 how can we allow having any entity?
