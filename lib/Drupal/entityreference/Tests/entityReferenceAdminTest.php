@@ -2,13 +2,17 @@
 
 /**
  * @file
- * Contains EntityReferenceHandlersTestCase
+ * Contains Drupal\entityreference\Tests\entityReferenceAdminTest.
  */
+
+namespace Drupal\entityreference\Tests;
+
+use Drupal\simpletest\WebTestBase;
 
 /**
  * Test for Entity Reference admin UI.
  */
-class EntityReferenceAdminTestCase extends DrupalWebTestCase {
+class entityReferenceAdminTest extends WebTestBase {
   public static function getInfo() {
     return array(
       'name' => 'Entity Reference UI',
@@ -17,8 +21,10 @@ class EntityReferenceAdminTestCase extends DrupalWebTestCase {
     );
   }
 
+  public static $modules = array('field_ui', 'entityreference');
+
   public function setUp() {
-    parent::setUp(array('field_ui', 'entity', 'ctools', 'entityreference'));
+    parent::setUp();
 
     // Create test user.
     $this->admin_user = $this->drupalCreateUser(array('access content', 'administer content types'));
