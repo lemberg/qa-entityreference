@@ -614,11 +614,13 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
   $instance = field_info_instance($entity_type, $field_name, $bundle_name);
   $matches = array();
 
+  $target_type = $field['settings']['target_type'];
+
   $entity = NULL;
   if ($entity_id !== 'NULL') {
     $entity = entity_load_single($entity_type, $entity_id);
     // TODO: Improve when we have entity_access().
-    $entity_access = $entity_type == 'node' ? node_access('view', $entity) : TRUE;
+    $entity_access = $target_type == 'node' ? node_access('view', $entity) : TRUE;
     if (!$entity || !$entity_access) {
       return MENU_ACCESS_DENIED;
     }
@@ -773,8 +775,10 @@ function entityreference_field_formatter_prepare_view($entity_type, $entities, $
     }
   }
 
+  $target_type = $field['settings']['target_type'];
+
   if ($target_ids) {
-    $target_entities = entity_load_multiple($field['settings']['target_type'], $target_ids);
+    $target_entities = entity_load_multiple($target_type, $target_ids);
   }
   else {
     $target_entities = array();
@@ -794,7 +798,7 @@ function entityreference_field_formatter_prepare_view($entity_type, $entities, $
       $entity = $target_entities[$item['target_id']];
 
       // TODO: Improve when we have entity_access().
-      $entity_access = $entity_type == 'node' ? node_access('view', $entity) : TRUE;
+      $entity_access = $target_type == 'node' ? node_access('view', $entity) : TRUE;
       if (!$entity_access) {
         continue;
       }
