@@ -22,7 +22,7 @@ class entityReferenceSelectionAccessTest extends WebTestBase {
     );
   }
 
-  public static $modules = array('field_ui', 'entityreference');
+  public static $modules = array('node', 'comment', 'entityreference');
 
   protected function assertReferencable($field, $tests, $handler_name) {
     $handler = entityreference_get_selection_handler($field);
