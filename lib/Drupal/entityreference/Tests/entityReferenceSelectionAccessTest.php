@@ -2,13 +2,18 @@
 
 /**
  * @file
- * Contains EntityReferenceHandlersTestCase
+ * Contains Drupal\entityreference\Tests\entityReferenceSelectionAccessTest.
  */
+
+namespace Drupal\entityreference\Tests;
+
+use Drupal\simpletest\WebTestBase;
+
 
 /**
  * Test for Entity Reference handlers.
  */
-class EntityReferenceHandlersTestCase extends DrupalWebTestCase {
+class entityReferenceSelectionAccessTest extends WebTestBase {
   public static function getInfo() {
     return array(
       'name' => 'Entity Reference Handlers',
@@ -17,9 +22,7 @@ class EntityReferenceHandlersTestCase extends DrupalWebTestCase {
     );
   }
 
-  public function setUp() {
-    parent::setUp('entityreference');
-  }
+  public static $modules = array('field_ui', 'entityreference');
 
   protected function assertReferencable($field, $tests, $handler_name) {
     $handler = entityreference_get_selection_handler($field);

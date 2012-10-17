@@ -2,13 +2,17 @@
 
 /**
  * @file
- * Contains EntityReferenceHandlersTestCase
+ * Contains Drupal\entityreference\Tests\entityReferenceAdminTest.
  */
+
+namespace Drupal\entityreference\Tests;
+
+use Drupal\simpletest\WebTestBase;
 
 /**
  * Test for Entity Reference admin UI.
  */
-class EntityReferenceAdminTestCase extends DrupalWebTestCase {
+class entityReferenceAdminTest extends WebTestBase {
   public static function getInfo() {
     return array(
       'name' => 'Entity Reference UI',
@@ -17,8 +21,10 @@ class EntityReferenceAdminTestCase extends DrupalWebTestCase {
     );
   }
 
+  public static $modules = array('field_ui', 'entityreference');
+
   public function setUp() {
-    parent::setUp(array('field_ui', 'entity', 'ctools', 'entityreference'));
+    parent::setUp();
 
     // Create test user.
     $this->admin_user = $this->drupalCreateUser(array('access content', 'administer content types'));
@@ -28,8 +34,6 @@ class EntityReferenceAdminTestCase extends DrupalWebTestCase {
     $type_name = strtolower($this->randomName(8)) . '_test';
     $type = $this->drupalCreateContentType(array('name' => $type_name, 'type' => $type_name));
     $this->type = $type->type;
-    // Store a valid URL name, with hyphens instead of underscores.
-    $this->hyphen_type = str_replace('_', '-', $this->type);
   }
 
   protected function assertFieldSelectOptions($name, $expected_options) {
@@ -59,7 +63,7 @@ class EntityReferenceAdminTestCase extends DrupalWebTestCase {
   }
 
   public function testFieldAdminHandler() {
-    $bundle_path = 'admin/structure/types/manage/' . $this->hyphen_type;
+    $bundle_path = 'admin/structure/types/manage/' . $this->type;
 
     // First step: 'Add new field' on the 'Manage fields' page.
     $this->drupalPost($bundle_path . '/fields', array(

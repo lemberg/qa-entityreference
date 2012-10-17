@@ -1,12 +1,33 @@
 <?php
 
 /**
- * A generic Entity handler.
- *
- * The generic base implementation has a variety of overrides to workaround
- * core's largely deficient entity handling.
+ * @file
+ * Definition of Drupal\entityreference\Plugin\entityreference\selection\SelectionBase.
  */
-class EntityReference_SelectionHandler_Generic implements EntityReference_SelectionHandler {
+
+namespace Drupal\entityreference\Plugin\entityreference\selection;
+
+use Drupal\Core\Entity\EntityFieldQuery;
+
+use Drupal\Core\Annotation\Plugin;
+use Drupal\Core\Annotation\Translation;
+
+use Drupal\Core\Database\Query\AlterableInterface;
+
+use Drupal\field\Plugin\PluginSettingsBase;
+use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
+use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
+
+/**
+ * Plugin implementation of the 'selection' entityreference.
+ *
+ * @Plugin(
+ *   id = "base",
+ *   module = "entityreference",
+ *   label = @Translation("Simple selection")
+ * )
+ */
+class SelectionBase extends PluginSettingsBase implements SelectionInterface {
 
   /**
    * Implements EntityReferenceHandler::getInstance().
@@ -17,18 +38,26 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
     // Check if the entity type does exist and has a base table.
     $entity_info = entity_get_info($target_entity_type);
     if (empty($entity_info['base table'])) {
-      return EntityReference_SelectionHandler_Broken::getInstance($field, $instance);
+      return \Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance);
     }
 
-    if (class_exists($class_name = 'EntityReference_SelectionHandler_Generic_' . $target_entity_type)) {
+    // TODO: Since we are using PSR-0 how can we allow having any entity?
+    // e.g. $class_name = 'SelectionEntityType' . $target_entity_type
+
+    // Convert the entity type name to camel-case.
+    $camel_case = str_replace('_', ' ', $target_entity_type);
+    $camel_case = ucwords($camel_case);
+    $camel_case = str_replace(' ', ' ', $camel_case);
+
+    if (class_exists($class_name = '\Drupal\entityreference\Plugin\Type\Selection\SelectionEntityType' . $camel_case)) {
       return new $class_name($field, $instance, $entity_type, $entity);
     }
     else {
-      return new EntityReference_SelectionHandler_Generic($field, $instance, $entity_type, $entity);
+      return new SelectionBase($field, $instance, $entity_type, $entity);
     }
   }
 
-  protected function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+  public function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
     $this->field = $field;
     $this->instance = $instance;
     $this->entity_type = $entity_type;
@@ -156,7 +185,6 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
    * Implements EntityReferenceHandler::getReferencableEntities().
    */
   public function getReferencableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
-    $options = array();
     $entity_type = $this->field['settings']['target_type'];
 
     $query = $this->buildEntityFieldQuery($match, $match_operator);
@@ -164,13 +192,16 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
       $query->range(0, $limit);
     }
 
-    $results = $query->execute();
+    $result = $query->execute();
 
-    if (!empty($results[$entity_type])) {
-      $entities = entity_load($entity_type, array_keys($results[$entity_type]));
-      foreach ($entities as $entity_id => $entity) {
-        $options[$entity_id] = check_plain($this->getLabel($entity));
-      }
+    if (empty($result[$entity_type])) {
+      return array();
+    }
+
+    $options = array();
+    $entities = entity_load_multiple($entity_type, array_keys($result[$entity_type]));
+    foreach ($entities as $entity_id => $entity) {
+      $options[$entity_id] = check_plain($entity->label());
     }
 
     return $options;
@@ -274,8 +305,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
   /**
    * Implements EntityReferenceHandler::entityFieldQueryAlter().
    */
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-
+  public function entityFieldQueryAlter(AlterableInterface $query) {
   }
 
   /**
@@ -284,7 +314,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
    * This allow Entity Reference to add a tag to an existing query, to ask
    * access control mechanisms to alter it again.
    */
-  protected function reAlterQuery(SelectQueryInterface $query, $tag, $base_table) {
+  protected function reAlterQuery(AlterableInterface $query, $tag, $base_table) {
     // Save the old tags and metadata.
     // For some reason, those are public.
     $old_tags = $query->alterTags;
@@ -297,193 +327,5 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
     // Restore the tags and metadata.
     $query->alterTags = $old_tags;
     $query->alterMetaData = $old_metadata;
-  }
-
-  /**
-   * Implements EntityReferenceHandler::getLabel().
-   */
-  public function getLabel($entity) {
-    return entity_label($this->field['settings']['target_type'], $entity);
-  }
-}
-
-/**
- * Override for the Node type.
- *
- * This only exists to workaround core bugs.
- */
-class EntityReference_SelectionHandler_Generic_node extends EntityReference_SelectionHandler_Generic {
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-    // Adding the 'node_access' tag is sadly insufficient for nodes: core
-    // requires us to also know about the concept of 'published' and
-    // 'unpublished'. We need to do that as long as there are no access control
-    // modules in use on the site. As long as one access control module is there,
-    // it is supposed to handle this check.
-    if (!user_access('bypass node access') && !count(module_implements('node_grants'))) {
-      $tables = $query->getTables();
-      $query->condition(key($tables) . '.status', NODE_PUBLISHED);
-    }
-  }
-}
-
-/**
- * Override for the User type.
- *
- * This only exists to workaround core bugs.
- */
-class EntityReference_SelectionHandler_Generic_user extends EntityReference_SelectionHandler_Generic {
-  public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
-    $query = parent::buildEntityFieldQuery($match, $match_operator);
-
-    // The user entity doesn't have a label column.
-    if (isset($match)) {
-      $query->propertyCondition('name', $match, $match_operator);
-    }
-
-    // Adding the 'user_access' tag is sadly insufficient for users: core
-    // requires us to also know about the concept of 'blocked' and
-    // 'active'.
-    if (!user_access('administer users')) {
-      $query->propertyCondition('status', 1);
-    }
-    return $query;
-  }
-
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-    if (user_access('administer users')) {
-      // In addition, if the user is administrator, we need to make sure to
-      // match the anonymous user, that doesn't actually have a name in the
-      // database.
-      $conditions = &$query->conditions();
-      foreach ($conditions as $key => $condition) {
-        if ($key !== '#conjunction' && is_string($condition['field']) && $condition['field'] === 'users.name') {
-          // Remove the condition.
-          unset($conditions[$key]);
-
-          // Re-add the condition and a condition on uid = 0 so that we end up
-          // with a query in the form:
-          //    WHERE (name LIKE :name) OR (:anonymous_name LIKE :name AND uid = 0)
-          $or = db_or();
-          $or->condition($condition['field'], $condition['value'], $condition['operator']);
-          // Sadly, the Database layer doesn't allow us to build a condition
-          // in the form ':placeholder = :placeholder2', because the 'field'
-          // part of a condition is always escaped.
-          // As a (cheap) workaround, we separately build a condition with no
-          // field, and concatenate the field and the condition separately.
-          $value_part = db_and();
-          $value_part->condition('anonymous_name', $condition['value'], $condition['operator']);
-          $value_part->compile(Database::getConnection(), $query);
-          $or->condition(db_and()
-            ->where(str_replace('anonymous_name', ':anonymous_name', (string) $value_part), $value_part->arguments() + array(':anonymous_name' => format_username(user_load(0))))
-            ->condition('users.uid', 0)
-          );
-          $query->condition($or);
-        }
-      }
-    }
-  }
-}
-
-/**
- * Override for the Comment type.
- *
- * This only exists to workaround core bugs.
- */
-class EntityReference_SelectionHandler_Generic_comment extends EntityReference_SelectionHandler_Generic {
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-    // Adding the 'comment_access' tag is sadly insufficient for comments: core
-    // requires us to also know about the concept of 'published' and
-    // 'unpublished'.
-    if (!user_access('administer comments')) {
-      $tables = $query->getTables();
-      $query->condition(key($tables) . '.status', COMMENT_PUBLISHED);
-    }
-
-    // The Comment module doesn't implement any proper comment access,
-    // and as a consequence doesn't make sure that comments cannot be viewed
-    // when the user doesn't have access to the node.
-    $tables = $query->getTables();
-    $base_table = key($tables);
-    $node_alias = $query->innerJoin('node', 'n', '%alias.nid = ' . $base_table . '.nid');
-    // Pass the query to the node access control.
-    $this->reAlterQuery($query, 'node_access', $node_alias);
-
-    // Alas, the comment entity exposes a bundle, but doesn't have a bundle column
-    // in the database. We have to alter the query ourself to go fetch the
-    // bundle.
-    $conditions = &$query->conditions();
-    foreach ($conditions as $key => &$condition) {
-      if ($key !== '#conjunction' && is_string($condition['field']) && $condition['field'] === 'node_type') {
-        $condition['field'] = $node_alias . '.type';
-        foreach ($condition['value'] as &$value) {
-          if (substr($value, 0, 13) == 'comment_node_') {
-            $value = substr($value, 13);
-          }
-        }
-        break;
-      }
-    }
-
-    // Passing the query to node_query_node_access_alter() is sadly
-    // insufficient for nodes.
-    // @see EntityReferenceHandler_node::entityFieldQueryAlter()
-    if (!user_access('bypass node access') && !count(module_implements('node_grants'))) {
-      $query->condition($node_alias . '.status', 1);
-    }
-  }
-}
-
-/**
- * Override for the File type.
- *
- * This only exists to workaround core bugs.
- */
-class EntityReference_SelectionHandler_Generic_file extends EntityReference_SelectionHandler_Generic {
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-    // Core forces us to know about 'permanent' vs. 'temporary' files.
-    $tables = $query->getTables();
-    $base_table = key($tables);
-    $query->condition('status', FILE_STATUS_PERMANENT);
-
-    // Access control to files is a very difficult business. For now, we are not
-    // going to give it a shot.
-    // @todo: fix this when core access control is less insane.
-    return $query;
-  }
-
-  public function getLabel($entity) {
-    // The file entity doesn't have a label. More over, the filename is
-    // sometimes empty, so use the basename in that case.
-    return $entity->filename !== '' ? $entity->filename : basename($entity->uri);
-  }
-}
-
-/**
- * Override for the Taxonomy term type.
- *
- * This only exists to workaround core bugs.
- */
-class EntityReference_SelectionHandler_Generic_taxonomy_term extends EntityReference_SelectionHandler_Generic {
-  public function entityFieldQueryAlter(SelectQueryInterface $query) {
-    // The Taxonomy module doesn't implement any proper taxonomy term access,
-    // and as a consequence doesn't make sure that taxonomy terms cannot be viewed
-    // when the user doesn't have access to the vocabulary.
-    $tables = $query->getTables();
-    $base_table = key($tables);
-    $vocabulary_alias = $query->innerJoin('taxonomy_vocabulary', 'n', '%alias.vid = ' . $base_table . '.vid');
-    $query->addMetadata('base_table', $vocabulary_alias);
-    // Pass the query to the taxonomy access control.
-    $this->reAlterQuery($query, 'taxonomy_vocabulary_access', $vocabulary_alias);
-
-    // Also, the taxonomy term entity exposes a bundle, but doesn't have a bundle
-    // column in the database. We have to alter the query ourself to go fetch
-    // the bundle.
-    $conditions = &$query->conditions();
-    foreach ($conditions as $key => &$condition) {
-      if ($key !== '#conjunction' && is_string($condition['field']) && $condition['field'] === 'vocabulary_machine_name') {
-        $condition['field'] = $vocabulary_alias . '.machine_name';
-        break;
-      }
-    }
   }
 }
