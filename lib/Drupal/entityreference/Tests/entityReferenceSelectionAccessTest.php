@@ -183,17 +183,17 @@ class entityReferenceSelectionAccessTest extends WebTestBase {
     );
 
     // Build a set of test data.
-    $users = array(
+    $user_values = array(
       'anonymous' => user_load(0),
       'admin' => user_load(1),
-      'non_admin' => (object) array(
+      'non_admin' => array(
         'name' => 'non_admin <&>',
         'mail' => 'non_admin@example.com',
         'roles' => array(),
         'pass' => user_password(),
         'status' => 1,
       ),
-      'blocked' => (object) array(
+      'blocked' => array(
         'name' => 'blocked <&>',
         'mail' => 'blocked@example.com',
         'roles' => array(),
@@ -202,15 +202,20 @@ class entityReferenceSelectionAccessTest extends WebTestBase {
       ),
     );
 
-    // The label of the anonymous user is variable_get('anonymous').
-    $users['anonymous']->name = variable_get('anonymous', t('Anonymous'));
+    $user_values['anonymous']->name = config('user.settings')->get('anonymous');
+    $users = array();
 
     $user_labels = array();
-    foreach ($users as $key => $user) {
-      if (!isset($user->uid)) {
-        $users[$key] = $user = user_save(drupal_anonymous_user(), (array) $user);
+    foreach ($user_values as $key => $values) {
+      if (is_array($values)) {
+        $account = entity_create('user', $values);
+        $account->save();
       }
-      $user_labels[$key] = check_plain($user->name);
+      else {
+        $account = $values;
+      }
+      $users[$key] = $account;
+      $user_labels[$key] = check_plain($account->name);
     }
 
     // Test as a non-admin.
