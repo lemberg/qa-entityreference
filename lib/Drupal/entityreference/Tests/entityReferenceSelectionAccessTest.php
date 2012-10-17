@@ -60,31 +60,34 @@ class entityReferenceSelectionAccessTest extends WebTestBase {
 
     // Build a set of test data.
     // Titles contain HTML-special characters to test escaping.
-    $nodes = array(
-      'published1' => (object) array(
+    $node_values = array(
+      'published1' => array(
         'type' => 'article',
-        'status' => 1,
+        'status' => NODE_PUBLISHED,
         'title' => 'Node published1 (<&>)',
         'uid' => 1,
       ),
-      'published2' => (object) array(
+      'published2' => array(
         'type' => 'article',
-        'status' => 1,
+        'status' => NODE_PUBLISHED,
         'title' => 'Node published2 (<&>)',
         'uid' => 1,
       ),
-      'unpublished' => (object) array(
+      'unpublished' => array(
         'type' => 'article',
-        'status' => 0,
+        'status' => NODE_NOT_PUBLISHED,
         'title' => 'Node unpublished (<&>)',
         'uid' => 1,
       ),
     );
 
+    $nodes = array();
     $node_labels = array();
-    foreach ($nodes as $key => $node) {
-      node_save($node);
-      $node_labels[$key] = check_plain($node->title);
+    foreach ($node_values as $key => $values) {
+      $node = entity_create('node', $values);
+      $node->save();
+      $nodes[$key] = $node;
+      $node_labels[$key] = check_plain($node->label());
     }
 
     // Test as a non-admin.
