@@ -309,61 +309,64 @@ class entityReferenceSelectionAccessTest extends WebTestBase {
     );
 
     // Build a set of test data.
-    $nodes = array(
-      'published' => (object) array(
+    $node_values = array(
+      'published' => array(
         'type' => 'article',
         'status' => 1,
         'title' => 'Node published',
         'uid' => 1,
       ),
-      'unpublished' => (object) array(
+      'unpublished' => array(
         'type' => 'article',
         'status' => 0,
         'title' => 'Node unpublished',
         'uid' => 1,
       ),
     );
-    foreach ($nodes as $node) {
-      node_save($node);
+    $nodes = array();
+    foreach ($node_values as $key => $values) {
+      $node = entity_create('node', $values);
+      $node->save();
+      $nodes[$key] = $node;
     }
 
-    $comments = array(
-      'published_published' => (object) array(
+    $comment_values = array(
+      'published_published' => array(
         'nid' => $nodes['published']->nid,
         'uid' => 1,
         'cid' => NULL,
         'pid' => 0,
         'status' => COMMENT_PUBLISHED,
         'subject' => 'Comment Published <&>',
-        'hostname' => ip_address(),
-        'language' => LANGUAGE_NONE,
+        'language' => LANGUAGE_NOT_SPECIFIED,
       ),
-      'published_unpublished' => (object) array(
+      'published_unpublished' => array(
         'nid' => $nodes['published']->nid,
         'uid' => 1,
         'cid' => NULL,
         'pid' => 0,
         'status' => COMMENT_NOT_PUBLISHED,
         'subject' => 'Comment Unpublished <&>',
-        'hostname' => ip_address(),
-        'language' => LANGUAGE_NONE,
+        'language' => LANGUAGE_NOT_SPECIFIED,
       ),
-      'unpublished_published' => (object) array(
+      'unpublished_published' => array(
         'nid' => $nodes['unpublished']->nid,
         'uid' => 1,
         'cid' => NULL,
         'pid' => 0,
         'status' => COMMENT_NOT_PUBLISHED,
         'subject' => 'Comment Published on Unpublished node <&>',
-        'hostname' => ip_address(),
-        'language' => LANGUAGE_NONE,
+        'language' => LANGUAGE_NOT_SPECIFIED,
       ),
     );
 
+    $comments = array();
     $comment_labels = array();
-    foreach ($comments as $key => $comment) {
-      comment_save($comment);
-      $comment_labels[$key] = check_plain($comment->subject);
+    foreach ($comment_values as $key => $values) {
+      $comment = entity_create('comment', $values);
+      $comment->save();
+      $comments[$key] = $comment;
+      $comment_labels[$key] = check_plain($comment->label());
     }
 
     // Test as a non-admin.
