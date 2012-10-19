@@ -9,8 +9,6 @@ namespace Drupal\entityreference\Plugin\field\formatter;
 
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
-use Drupal\field\Plugin\Type\Formatter\FormatterBase;
-use Drupal\Core\Entity\EntityInterface;
 
 use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
 
@@ -65,7 +63,6 @@ class EntityReferenceLabelFormatter extends DefaultEntityReferenceFormatter {
 
     $elements = array();
 
-    $handler = entityreference_get_selection_handler($field, $instance, $entity->entityType(), $entity);
     foreach ($items as $delta => $item) {
       $entity = $item['entity'];
       $label = $entity->label();

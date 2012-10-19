@@ -9,8 +9,9 @@ namespace Drupal\entityreference\Plugin\field\formatter;
 
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
-use Drupal\field\Plugin\Type\Formatter\FormatterBase;
 use Drupal\Core\Entity\EntityInterface;
+
+use Drupal\field\Plugin\Type\Formatter\FormatterBase;
 
 /**
  * Parent plugin for entity-reference formatters.
@@ -68,5 +69,22 @@ abstract class DefaultEntityReferenceFormatter extends FormatterBase {
         $items[$id][$delta]['access'] = TRUE;
       }
     }
+  }
+
+  /**
+   * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::viewElements().
+   *
+   * Remove unaccessible values.
+   *
+   * @see Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter::prepareView().
+   */
+  public function viewElements(EntityInterface $entity, $langcode, array $items) {
+    // Remove unaccessible items.
+    foreach ($items as $delta => $item) {
+      if (empty($item['access'])) {
+        unset($items[$delta]);
+      }
+    }
+    return array();
   }
 }
