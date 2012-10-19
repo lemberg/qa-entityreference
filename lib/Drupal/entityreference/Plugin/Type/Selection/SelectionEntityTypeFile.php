@@ -27,10 +27,4 @@ class SelectionEntityTypeFile extends SelectionBase {
     // @todo: fix this when core access control is less insane.
     return $query;
   }
-
-  public function getLabel($entity) {
-    // The file entity doesn't have a label. More over, the filename is
-    // sometimes empty, so use the basename in that case.
-    return $entity->filename !== '' ? $entity->filename : basename($entity->uri);
-  }
 }
