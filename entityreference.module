@@ -5,7 +5,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
-use Drupal\entityreference\EntityReferenceRecursiveRenderingException;
 
 /**
  * Implements hook_field_info().
@@ -90,15 +89,15 @@ function entityreference_get_plugin_manager($plugin_type) {
 /**
  * Get the selection handler for a given entityreference field.
  */
-function entityreference_get_selection_handler($field, $instance = NULL, $entity_type = NULL, EntityInterface $entity = NULL) {
+function entityreference_get_selection_handler($field, $instance = NULL, EntityInterface $entity = NULL) {
   $plugin = entityreference_get_plugin_manager('selection')->getDefinition($field['settings']['handler']);
   $class = $plugin['class'];
 
   if (class_exists($class)) {
-    return call_user_func(array($class, 'getInstance'), $field, $instance, $entity_type, $entity);
+    return call_user_func(array($class, 'getInstance'), $field, $instance, $entity);
   }
 
-  return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity_type, $entity);
+  return Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance, $entity);
 }
 
 /**
@@ -416,7 +415,7 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
       return MENU_ACCESS_DENIED;
     }
   }
-  $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+  $handler = entityreference_get_selection_handler($field, $instance, $entity);
 
   if ($type == 'tags') {
     // The user enters a comma-separated list of tags. We only autocomplete the last tag.

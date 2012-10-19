@@ -11,6 +11,7 @@ namespace Drupal\entityreference\Plugin\Type\Selection;
 
 use Drupal\Core\Entity\EntityFieldQuery;
 use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
@@ -20,7 +21,7 @@ use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
  */
 class SelectionBroken implements SelectionInterface {
 
-  public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+  public static function getInstance($field, $instance = NULL, EntityInterface $entity = NULL) {
     return new SelectionBroken($field, $instance, $entity_type, $entity);
   }
 

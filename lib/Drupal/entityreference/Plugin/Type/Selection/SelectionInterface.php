@@ -7,6 +7,8 @@
 
 namespace Drupal\entityreference\Plugin\Type\Selection;
 
+use Drupal\Core\Entity\EntityInterface;
+
 /**
  * Interface definition for field widget plugins.
  *
@@ -24,7 +26,7 @@ interface SelectionInterface  {
    *   A field datastructure.
    * @return EntityReferenceHandler
    */
-  public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL);
+  public static function getInstance($field, $instance = NULL, EntityInterface $entity = NULL);
 
   /**
    * Return a list of referencable entities.

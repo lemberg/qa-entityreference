@@ -47,7 +47,7 @@ class AutocompleteTagsWidget extends DefaultAutocompleteWidget {
   }
 
   /**
-   * Element validate.
+   * Implements Drupal\entityreference\Plugin\field\widget\DefaultAutocompleteWidget::elementValidate()
    */
   public function elementValidate($element, &$form_state) {
     $value = array();

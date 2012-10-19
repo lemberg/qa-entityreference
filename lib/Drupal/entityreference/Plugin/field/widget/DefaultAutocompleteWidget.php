@@ -119,9 +119,8 @@ abstract class DefaultAutocompleteWidget extends WidgetBase {
     $instance = $this->instance;
     $field = $this->field;
 
-    $entity_type = $instance['entity_type'];
     $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
-    $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+    $handler = entityreference_get_selection_handler($field, $instance, $entity);
 
     $entity_ids = array();
     $entity_labels = array();
