@@ -54,8 +54,4 @@ class SelectionBroken implements SelectionInterface {
 
   public function entityFieldQueryAlter(AlterableInterface $query) {
   }
-
-  public function getLabel($entity) {
-    return '';
-  }
 }
