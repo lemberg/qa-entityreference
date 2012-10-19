@@ -10,7 +10,9 @@
 namespace Drupal\entityreference\Plugin\Type\Selection;
 
 use Drupal\Core\Entity\EntityFieldQuery;
+use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Query\AlterableInterface;
+
 
 use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
@@ -58,7 +60,7 @@ class SelectionEntityTypeUser extends SelectionBase {
           $value_part->condition('anonymous_name', $condition['value'], $condition['operator']);
           $value_part->compile(Database::getConnection(), $query);
           $or->condition(db_and()
-            ->where(str_replace('anonymous_name', ':anonymous_name', (string) $value_part), $value_part->arguments() + array(':anonymous_name' => format_username(user_load(0))))
+            ->where(str_replace('anonymous_name', ':anonymous_name', (string) $value_part), $value_part->arguments() + array(':anonymous_name' => user_format_name(user_load(0))))
             ->condition('users.uid', 0)
           );
           $query->condition($or);
