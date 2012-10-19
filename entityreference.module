@@ -406,8 +406,9 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
   $target_type = $field['settings']['target_type'];
 
   $entity = NULL;
+
   if ($entity_id !== 'NULL') {
-    $entity = entity_load_single($entity_type, $entity_id);
+    $entity = entity_load($entity_type, $entity_id);
     // TODO: Improve when we have entity_access().
     $entity_access = $target_type == 'node' ? node_access('view', $entity) : TRUE;
     if (!$entity || !$entity_access) {
