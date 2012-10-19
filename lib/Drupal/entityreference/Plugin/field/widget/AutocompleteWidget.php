@@ -40,8 +40,7 @@ class AutocompleteWidget extends WidgetBase {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::settingsForm().
    */
   public function settingsForm(array $form, array &$form_state) {
-    $widget = $instance['widget'];
-    $settings = $widget['settings'] + field_info_widget_settings($widget['type']);
+    $settings = $this->settings;
 
     $form['match_operator'] = array(
       '#type' => 'select',
@@ -70,9 +69,9 @@ class AutocompleteWidget extends WidgetBase {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::formElement().
    */
   public function formElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state) {
-    $entity_type = $instance['entity_type'];
+    $instance = $this->instance;
+    $field = $this->field;
     $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
-    $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
 
     // We let the Field API handles multiple values for us, only take
     // care of the one matching our delta.
@@ -82,6 +81,49 @@ class AutocompleteWidget extends WidgetBase {
     else {
       $items = array();
     }
+
+    // Prepare the autocomplete path.
+    $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : 'entityreference/autocomplete/single';
+
+    $autocomplete_path .= '/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/';
+    // Use <NULL> as a placeholder in the URL when we don't have an entity.
+    // Most webservers collapse two consecutive slashes.
+    $id = 'NULL';
+    if ($entity) {
+      if ($eid = $entity->id()) {
+        $id = $eid;
+      }
+    }
+    $autocomplete_path .= $id;
+
+    $element += array(
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#default_value' => implode(', ', $this->getLabels($items)),
+      '#autocomplete_path' => $autocomplete_path,
+      '#size' => $instance['widget']['settings']['size'],
+      '#element_validate' => array('_entityreference_autocomplete_validate'),
+    );
+    return array('target_id' => $element);
+  }
+
+  /**
+   * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::errorElement().
+   */
+  public function errorElement(array $element, array $error, array $form, array &$form_state) {
+    return $element['target_id'];
+  }
+
+  /**
+   * Get the entity labels.
+   */
+  protected function getLabels(array $items) {
+    $instance = $this->instance;
+    $field = $this->field;
+
+    $entity_type = $instance['entity_type'];
+    $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
+    $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
 
     $entity_ids = array();
     $entity_labels = array();
@@ -103,36 +145,6 @@ class AutocompleteWidget extends WidgetBase {
       }
       $entity_labels[] = $key;
     }
-
-    // Prepare the autocomplete path.
-    $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : 'entityreference/autocomplete/single';
-
-    $autocomplete_path .= '/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/';
-    // Use <NULL> as a placeholder in the URL when we don't have an entity.
-    // Most webservers collapse two consecutive slashes.
-    $id = 'NULL';
-    if ($entity) {
-      if ($eid = $entity->id()) {
-        $id = $eid;
-      }
-    }
-    $autocomplete_path .= $id;
-
-    $element += array(
-      '#type' => 'textfield',
-      '#maxlength' => 1024,
-      '#default_value' => implode(', ', $entity_labels),
-      '#autocomplete_path' => $autocomplete_path,
-      '#size' => $instance['widget']['settings']['size'],
-      '#element_validate' => array('_entityreference_autocomplete_validate'),
-    );
-    return array('target_id' => $element);
-  }
-
-  /**
-   * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::errorElement().
-   */
-  public function errorElement(array $element, array $error, array $form, array &$form_state) {
-    return $element['target_id'];
+    return $entity_labels;
   }
 }

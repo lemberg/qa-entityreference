@@ -31,7 +31,10 @@ use Drupal\field\Plugin\Type\Widget\WidgetBase;
  *     "match_operator" = "CONTAINS",
  *     "size" = 60,
  *     "path" = ""
- *   }
+ *   },
+ *   behaviors = {
+      "multiple values" = FIELD_BEHAVIOR_CUSTOM,
+    }
  * )
  */
 class AutocompleteTagsWidget extends AutocompleteWidget {
@@ -40,30 +43,9 @@ class AutocompleteTagsWidget extends AutocompleteWidget {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::formElement().
    */
   public function formElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state) {
-    $entity_type = $instance['entity_type'];
+    $instance = $this->instance;
+    $field = $this->field;
     $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
-    $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
-
-    $entity_ids = array();
-    $entity_labels = array();
-
-    // Build an array of entities ID.
-    foreach ($items as $item) {
-      $entity_ids[] = $item['target_id'];
-    }
-
-    // Load those entities and loop through them to extract their labels.
-    $entities = entity_load_multiple($field['settings']['target_type'], $entity_ids);
-
-    foreach ($entities as $entity_id => $entity_item) {
-      $label = $entity_item->label();
-      $key = "$label ($entity_id)";
-      // Labels containing commas or quotes must be wrapped in quotes.
-      if (strpos($key, ',') !== FALSE || strpos($key, '"') !== FALSE) {
-        $key = '"' . str_replace('"', '""', $key) . '"';
-      }
-      $entity_labels[] = $key;
-    }
 
     // Prepare the autocomplete path.
     $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : 'entityreference/autocomplete/tags';
@@ -82,7 +64,7 @@ class AutocompleteTagsWidget extends AutocompleteWidget {
     $element += array(
       '#type' => 'textfield',
       '#maxlength' => 1024,
-      '#default_value' => implode(', ', $entity_labels),
+      '#default_value' => implode(', ', $this->getLabels($items)),
       '#autocomplete_path' => $autocomplete_path,
       '#size' => $instance['widget']['settings']['size'],
       '#element_validate' => array('_entityreference_autocomplete_tags_validate'),

@@ -324,44 +324,6 @@ function entityreference_settings_ajax_submit($form, &$form_state) {
 }
 
 /**
- * Implements hook_field_widget_info().
- */
-function entityreference_field_widget_info() {
-  $widgets['entityreference_autocomplete'] = array(
-    'label' => t('Autocomplete'),
-    'description' => t('An autocomplete text field.'),
-    'field types' => array('entityreference'),
-    'settings' => array(
-      'match_operator' => 'CONTAINS',
-      'size' => 60,
-      // We don't have a default here, because it's not the same between
-      // the two widgets, and the Field API doesn't update default
-      // settings when the widget changes.
-      'path' => '',
-    ),
-  );
-
-  $widgets['entityreference_autocomplete_tags'] = array(
-    'label' => t('Autocomplete (Tags style)'),
-    'description' => t('An autocomplete text field.'),
-    'field types' => array('entityreference'),
-    'settings' => array(
-      'match_operator' => 'CONTAINS',
-      'size' => 60,
-      // We don't have a default here, because it's not the same between
-      // the two widgets, and the Field API doesn't update default
-      // settings when the widget changes.
-      'path' => '',
-    ),
-    'behaviors' => array(
-      'multiple values' => FIELD_BEHAVIOR_CUSTOM,
-    ),
-  );
-
-  return $widgets;
-}
-
-/**
  * Implements hook_field_widget_info_alter().
  *
  * @todo: Move this to plugin alteration after:
@@ -434,13 +396,6 @@ function _entityreference_autocomplete_tags_validate($element, &$form_state, $fo
     }
   }
   form_set_value($element, $value, $form_state);
-}
-
-/**
- * Implements hook_field_widget_error().
- */
-function entityreference_field_widget_error($element, $error) {
-  form_error($element, $error['message']);
 }
 
 /**
