@@ -3,6 +3,7 @@
 use Drupal\Core\Database\Query\AlterableInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
 use Drupal\entityreference\EntityReferenceRecursiveRenderingException;
 
