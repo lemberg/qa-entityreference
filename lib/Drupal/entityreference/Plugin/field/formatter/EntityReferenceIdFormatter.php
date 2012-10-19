@@ -9,6 +9,7 @@ namespace Drupal\entityreference\Plugin\field\formatter;
 
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
+use Drupal\Core\Entity\EntityInterface;
 
 use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
 

@@ -9,6 +9,7 @@ namespace Drupal\entityreference\Plugin\field\formatter;
 
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
+use Drupal\Core\Entity\EntityInterface;
 
 use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
 
@@ -57,6 +58,9 @@ class EntityReferenceLabelFormatter extends DefaultEntityReferenceFormatter {
    * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::viewElements().
    */
   public function viewElements(EntityInterface $entity, $langcode, array $items) {
+    // Remove un-accessible items.
+    parent::viewElements($entity, $langcode, $items);
+
     $instance = $this->instance;
     $field = $this->field;
     $settings = $this->settings;
