@@ -87,6 +87,8 @@ class EntityReferenceEntityFormatter extends DefaultEntityReferenceFormatter {
     $field = $this->field;
     $settings = $this->settings;
 
+    $target_type = $field['settings']['target_type'];
+
     $elements = array();
 
     foreach ($items as $delta => $item) {
@@ -94,15 +96,16 @@ class EntityReferenceEntityFormatter extends DefaultEntityReferenceFormatter {
       static $depth = 0;
       $depth++;
       if ($depth > 20) {
-        throw new EntityReferenceRecursiveRenderingException(t('Recursive rendering detected when rendering entity @entity_type(@entity_id). Aborting rendering.', array('@entity_type' => $entity_type, '@entity_id' => $item['target_id'])));
+        throw new EntityReferenceRecursiveRenderingException(format_string('Recursive rendering detected when rendering entity @entity_type(@entity_id). Aborting rendering.', array('@entity_type' => $entity_type, '@entity_id' => $item['target_id'])));
       }
 
       $entity = clone $item['entity'];
       unset($entity->content);
-      $result[$delta] = entity_view($field['settings']['target_type'], array($item['target_id'] => $entity), $settings['view_mode'], $langcode, FALSE);
+      $elements[$delta] = entity_view($entity, $settings['view_mode'], $langcode);
 
-      if (empty($settings['links']) && isset($result[$delta][$field['settings']['target_type']][$item['target_id']]['links'])) {
-        $result[$delta][$field['settings']['target_type']][$item['target_id']]['links']['#access'] = FALSE;
+      if (empty($settings['links']) && isset($result[$delta][$target_type][$item['target_id']]['links'])) {
+        // Hide the element links.
+        $elements[$delta][$target_type][$item['target_id']]['links']['#access'] = FALSE;
       }
       $depth = 0;
     }
