@@ -89,7 +89,7 @@ function entityreference_get_plugin_manager($plugin_type) {
 /**
  * Get the selection handler for a given entityreference field.
  */
-function entityreference_get_selection_handler($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+function entityreference_get_selection_handler($field, $instance = NULL, $entity_type = NULL, EntityInterface $entity = NULL) {
   $plugin = entityreference_get_plugin_manager('selection')->getDefinition($field['settings']['handler']);
   $class = $plugin['class'];
 
