@@ -91,12 +91,13 @@ class AutocompleteWidget extends WidgetBase {
   protected function prepareElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state, $default_path) {
     $instance = $this->instance;
     $field = $this->field;
+    $settings = $this->settings;
     $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
 
     // Prepare the autocomplete path.
-    $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : $default_path;
-
+    $autocomplete_path = !empty($settings['path']) ? $settings['path'] : $default_path;
     $autocomplete_path .= '/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/';
+
     // Use <NULL> as a placeholder in the URL when we don't have an entity.
     // Most webservers collapse two consecutive slashes.
     $id = 'NULL';
@@ -112,8 +113,8 @@ class AutocompleteWidget extends WidgetBase {
       '#maxlength' => 1024,
       '#default_value' => implode(', ', $this->getLabels($items)),
       '#autocomplete_path' => $autocomplete_path,
-      '#size' => $instance['widget']['settings']['size'],
-      '#element_validate' => array('_entityreference_autocomplete_validate'),
+      '#size' => $settings['size'],
+      '#element_validate' => array(array($this, 'elementValidate')),
     );
     return $element;
   }
