@@ -32,9 +32,7 @@ use Drupal\field\Plugin\Type\Widget\WidgetBase;
  *     "size" = 60,
  *     "path" = ""
  *   },
- *   behaviors = {
-      "multiple values" = FIELD_BEHAVIOR_CUSTOM,
-    }
+ *   multiple_values = FIELD_BEHAVIOR_CUSTOM
  * )
  */
 class AutocompleteTagsWidget extends AutocompleteWidget {
