@@ -59,7 +59,7 @@ class AutocompleteWidget extends DefaultAutocompleteWidget {
    * Implements Drupal\entityreference\Plugin\field\widget\DefaultAutocompleteWidget::elementValidate()
    */
   public function elementValidate($element, &$form_state) {
-    // If a value was entered into the autocomplete...
+    // If a value was entered into the autocomplete.
     $value = '';
     if (!empty($element['#value'])) {
       // Take "label (entity id)', match the id from parenthesis.
@@ -70,7 +70,8 @@ class AutocompleteWidget extends DefaultAutocompleteWidget {
         // Try to get a match from the input string when the user didn't use the
         // autocomplete but filled in a value manually.
         $field = field_info_field($element['#field_name']);
-        $handler = entityreference_get_selection_handler($field);
+        $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+        $handler = entityreference_get_selection_handler($field, $instance);
         $value = $handler->validateAutocompleteInput($element['#value'], $element, $form_state, $form);
       }
     }
