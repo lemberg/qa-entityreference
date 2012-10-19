@@ -457,14 +457,6 @@ function entityreference_autocomplete_callback($type, $field_name, $entity_type,
  */
 function entityreference_field_formatter_info() {
   return array(
-    'entityreference_label' => array(
-      'label' => t('Label'),
-      'description' => t('Display the label of the referenced entities.'),
-      'field types' => array('entityreference'),
-      'settings' => array(
-        'link' => FALSE,
-      ),
-    ),
     'entityreference_entity_id' => array(
       'label' => t('Entity id'),
       'description' => t('Display the id of the referenced entities.'),
@@ -488,14 +480,6 @@ function entityreference_field_formatter_info() {
 function entityreference_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-
-  if ($display['type'] == 'entityreference_label') {
-    $element['link'] = array(
-      '#title' => t('Link label to the referenced entity'),
-      '#type' => 'checkbox',
-      '#default_value' => $settings['link'],
-    );
-  }
 
   if ($display['type'] == 'entityreference_entity_view') {
     $entity_info = entity_get_info($field['settings']['target_type']);
@@ -534,10 +518,6 @@ function entityreference_field_formatter_settings_summary($field, $instance, $vi
 
   $summary = array();
 
-  if ($display['type'] == 'entityreference_label') {
-    $summary[] = $settings['link'] ? t('Link to the referenced entity') : t('No link');
-  }
-
   if ($display['type'] == 'entityreference_entity_view') {
     $entity_info = entity_get_info($field['settings']['target_type']);
     $summary[] = t('Rendered as @mode', array('@mode' => isset($entity_info['view modes'][$settings['view_mode']]['label']) ? $entity_info['view modes'][$settings['view_mode']]['label'] : $settings['view_mode']));
@@ -545,59 +525,6 @@ function entityreference_field_formatter_settings_summary($field, $instance, $vi
   }
 
   return implode('<br />', $summary);
-}
-
-/**
- * Implements hook_field_formatter_prepare_view().
- *
- * Mark the accessible IDs a user can see. We do not unset unaccessible
- * values, as other may want to act on those values, even if they can
- * not be accessed.
- */
-function entityreference_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
-  $target_ids = array();
-
-  // Collect every possible entity attached to any of the entities.
-  foreach ($entities as $id => $entity) {
-    foreach ($items[$id] as $delta => $item) {
-      if (isset($item['target_id'])) {
-        $target_ids[] = $item['target_id'];
-      }
-    }
-  }
-
-  $target_type = $field['settings']['target_type'];
-
-  if ($target_ids) {
-    $target_entities = entity_load_multiple($target_type, $target_ids);
-  }
-  else {
-    $target_entities = array();
-  }
-
-  // Iterate through the fieldable entities again to attach the loaded
-  // data.
-  foreach ($entities as $id => $entity) {
-
-    foreach ($items[$id] as $delta => $item) {
-      $items[$id][$delta]['entity'] = $target_entities[$item['target_id']];
-
-      if (!isset($target_entities[$item['target_id']])) {
-        continue;
-      }
-
-      $entity = $target_entities[$item['target_id']];
-
-      // TODO: Improve when we have entity_access().
-      $entity_access = $target_type == 'node' ? node_access('view', $entity) : TRUE;
-      if (!$entity_access) {
-        continue;
-      }
-
-      // Mark item as accessible.
-      $items[$id][$delta]['access'] = TRUE;
-    }
-  }
 }
 
 /**
@@ -615,22 +542,6 @@ function entityreference_field_formatter_view($entity_type, $entity, $field, $in
   }
 
   switch ($display['type']) {
-    case 'entityreference_label':
-      $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
-      foreach ($items as $delta => $item) {
-        $entity = $item['entity'];
-        $label = $entity->label();
-        // If the link is to be displayed and the entity has a uri, display a link.
-        // Note the assignment ($url = ) here is intended to be an assignment.
-        if ($display['settings']['link'] && ($uri = $entity->uri())) {
-          $result[$delta] = array('#markup' => l($label, $uri['path'], $uri['options']));
-        }
-        else {
-          $result[$delta] = array('#markup' => check_plain($label));
-        }
-      }
-      break;
-
     case 'entityreference_entity_id':
       foreach ($items as $delta => $item) {
         $result[$delta] = array('#markup' => check_plain($item['target_id']));

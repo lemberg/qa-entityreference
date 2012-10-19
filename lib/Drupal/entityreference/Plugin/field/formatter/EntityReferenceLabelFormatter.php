@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\entityreference\Plugin\field\formatter\EntityReferenceFormatterLabel.
+ * Definition of Drupal\entityreference\Plugin\field\formatter\EntityReferenceLabelFormatter.
  */
 
 namespace Drupal\entityreference\Plugin\field\formatter;
@@ -11,6 +11,8 @@ use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\field\Plugin\Type\Formatter\FormatterBase;
 use Drupal\Core\Entity\EntityInterface;
+
+use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
 
 /**
  * Plugin implementation of the 'entity-reference label' formatter.
@@ -28,7 +30,7 @@ use Drupal\Core\Entity\EntityInterface;
  *   }
  * )
  */
-class EntityReferenceFormatterLabel extends FormatterBase {
+class EntityReferenceLabelFormatter extends DefaultEntityReferenceFormatter {
 
   /**
    * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::settingsForm().
@@ -57,6 +59,10 @@ class EntityReferenceFormatterLabel extends FormatterBase {
    * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::viewElements().
    */
   public function viewElements(EntityInterface $entity, $langcode, array $items) {
+    $instance = $this->instance;
+    $field = $this->field;
+    $settings = $this->settings;
+
     $elements = array();
 
     $handler = entityreference_get_selection_handler($field, $instance, $entity->entityType(), $entity);
@@ -65,7 +71,7 @@ class EntityReferenceFormatterLabel extends FormatterBase {
       $label = $entity->label();
       // If the link is to be displayed and the entity has a uri, display a link.
       // Note the assignment ($url = ) here is intended to be an assignment.
-      if ($display['settings']['link'] && ($uri = $entity->uri())) {
+      if ($settings['link'] && ($uri = $entity->uri())) {
         $elements[$delta] = array('#markup' => l($label, $uri['path'], $uri['options']));
       }
       else {
