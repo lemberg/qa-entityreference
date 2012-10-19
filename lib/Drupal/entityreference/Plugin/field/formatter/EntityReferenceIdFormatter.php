@@ -14,7 +14,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
 
 /**
- * Plugin implementation of the 'entity-reference label' formatter.
+ * Plugin implementation of the 'entity-reference ID' formatter.
  *
  * @Plugin(
  *   id = "entityreference_entity_id",

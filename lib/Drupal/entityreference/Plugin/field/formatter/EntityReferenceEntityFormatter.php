@@ -11,10 +11,11 @@ use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\EntityInterface;
 
+use Drupal\entityreference\EntityReferenceRecursiveRenderingException;
 use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
 
 /**
- * Plugin implementation of the 'entity-reference label' formatter.
+ * Plugin implementation of the 'entity-reference rendered entity' formatter.
  *
  * @Plugin(
  *   id = "entityreference_entity_view",
