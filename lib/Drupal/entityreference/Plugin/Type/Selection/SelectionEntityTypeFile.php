@@ -14,7 +14,6 @@ use Drupal\Core\Database\Query\AlterableInterface;
 
 use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
-
 class SelectionEntityTypeFile extends SelectionBase {
 
   public function entityFieldQueryAlter(AlterableInterface $query) {

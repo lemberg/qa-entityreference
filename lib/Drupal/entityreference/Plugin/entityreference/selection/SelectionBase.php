@@ -11,7 +11,7 @@ use Drupal\Core\Entity\EntityFieldQuery;
 
 use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
-
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Database\Query\AlterableInterface;
 
 use Drupal\field\Plugin\PluginSettingsBase;
@@ -32,7 +32,7 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
   /**
    * Implements EntityReferenceHandler::getInstance().
    */
-  public static function getInstance($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+  public static function getInstance($field, $instance = NULL, EntityInterface $entity = NULL) {
     $target_entity_type = $field['settings']['target_type'];
 
     // Check if the entity type does exist and has a base table.
@@ -50,17 +50,16 @@ class SelectionBase extends PluginSettingsBase implements SelectionInterface {
     $camel_case = str_replace(' ', ' ', $camel_case);
 
     if (class_exists($class_name = '\Drupal\entityreference\Plugin\Type\Selection\SelectionEntityType' . $camel_case)) {
-      return new $class_name($field, $instance, $entity_type, $entity);
+      return new $class_name($field, $instance, $entity);
     }
     else {
-      return new SelectionBase($field, $instance, $entity_type, $entity);
+      return new SelectionBase($field, $instance, $entity);
     }
   }
 
-  public function __construct($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
+  public function __construct($field, $instance = NULL, EntityInterface $entity = NULL) {
     $this->field = $field;
     $this->instance = $instance;
-    $this->entity_type = $entity_type;
     $this->entity = $entity;
   }
 

@@ -14,7 +14,6 @@ use Drupal\Core\Database\Query\AlterableInterface;
 
 use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
 
-
 class SelectionEntityTypeUser extends SelectionBase {
 
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
