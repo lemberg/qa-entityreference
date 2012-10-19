@@ -43,32 +43,36 @@ class AutocompleteTagsWidget extends AutocompleteWidget {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::formElement().
    */
   public function formElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state) {
-    $instance = $this->instance;
-    $field = $this->field;
-    $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
+    return $this->prepareElement($items, $delta, $element, $langcode, $form, $form_state, 'entityreference/autocomplete/tags');
+  }
 
-    // Prepare the autocomplete path.
-    $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : 'entityreference/autocomplete/tags';
-
-    $autocomplete_path .= '/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/';
-    // Use <NULL> as a placeholder in the URL when we don't have an entity.
-    // Most webservers collapse two consecutive slashes.
-    $id = 'NULL';
-    if ($entity) {
-      if ($eid = $entity->id()) {
-        $id = $eid;
+  /**
+   * Element validate.
+   */
+  public function elementValidate($element, &$form_state) {
+    $value = array();
+    // If a value was entered into the autocomplete...
+    if (!empty($element['#value'])) {
+      $entities = drupal_explode_tags($element['#value']);
+      $value = array();
+      foreach ($entities as $entity) {
+        // Take "label (entity id)', match the id from parenthesis.
+        if (preg_match("/.+\((\d+)\)/", $entity, $matches)) {
+          $value[] = array(
+            'target_id' => $matches[1],
+          );
+        }
+        else {
+          // Try to get a match from the input string when the user didn't use the
+          // autocomplete but filled in a value manually.
+          $field = field_info_field($element['#field_name']);
+          $handler = entityreference_get_selection_handler($field);
+          $value[] = array(
+            'target_id' => $handler->validateAutocompleteInput($entity, $element, $form_state, $form),
+          );
+        }
       }
     }
-    $autocomplete_path .= $id;
-
-    $element += array(
-      '#type' => 'textfield',
-      '#maxlength' => 1024,
-      '#default_value' => implode(', ', $this->getLabels($items)),
-      '#autocomplete_path' => $autocomplete_path,
-      '#size' => $instance['widget']['settings']['size'],
-      '#element_validate' => array('_entityreference_autocomplete_tags_validate'),
-    );
-    return $element;
+    form_set_value($element, $value, $form_state);
   }
 }

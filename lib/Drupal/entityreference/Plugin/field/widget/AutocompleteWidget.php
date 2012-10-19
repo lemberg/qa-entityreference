@@ -69,10 +69,6 @@ class AutocompleteWidget extends WidgetBase {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::formElement().
    */
   public function formElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state) {
-    $instance = $this->instance;
-    $field = $this->field;
-    $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
-
     // We let the Field API handles multiple values for us, only take
     // care of the one matching our delta.
     if (isset($items[$delta])) {
@@ -82,8 +78,23 @@ class AutocompleteWidget extends WidgetBase {
       $items = array();
     }
 
+    $element = $this->prepareElement($items, $delta, $element, $langcode, $form, $form_state, 'entityreference/autocomplete/single');
+    return array('target_id' => $element);
+  }
+
+  /**
+   * Prepapre the element.
+   *
+   * @default_path
+   *   The menu item to be used in the autocomplete path.
+   */
+  protected function prepareElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state, $default_path) {
+    $instance = $this->instance;
+    $field = $this->field;
+    $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
+
     // Prepare the autocomplete path.
-    $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : 'entityreference/autocomplete/single';
+    $autocomplete_path = !empty($instance['widget']['settings']['path']) ? $instance['widget']['settings']['path'] : $default_path;
 
     $autocomplete_path .= '/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/';
     // Use <NULL> as a placeholder in the URL when we don't have an entity.
@@ -104,7 +115,7 @@ class AutocompleteWidget extends WidgetBase {
       '#size' => $instance['widget']['settings']['size'],
       '#element_validate' => array('_entityreference_autocomplete_validate'),
     );
-    return array('target_id' => $element);
+    return $element;
   }
 
   /**
@@ -112,6 +123,28 @@ class AutocompleteWidget extends WidgetBase {
    */
   public function errorElement(array $element, array $error, array $form, array &$form_state) {
     return $element['target_id'];
+  }
+
+  /**
+   * Element validate.
+   */
+  public function elementValidate($element, &$form_state) {
+    // If a value was entered into the autocomplete...
+    $value = '';
+    if (!empty($element['#value'])) {
+      // Take "label (entity id)', match the id from parenthesis.
+      if (preg_match("/.+\((\d+)\)/", $element['#value'], $matches)) {
+        $value = $matches[1];
+      }
+      else {
+        // Try to get a match from the input string when the user didn't use the
+        // autocomplete but filled in a value manually.
+        $field = field_info_field($element['#field_name']);
+        $handler = entityreference_get_selection_handler($field);
+        $value = $handler->validateAutocompleteInput($element['#value'], $element, $form_state, $form);
+      }
+    }
+    form_set_value($element, $value, $form_state);
   }
 
   /**
