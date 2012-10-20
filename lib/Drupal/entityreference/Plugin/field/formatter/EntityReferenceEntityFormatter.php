@@ -12,7 +12,7 @@ use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\EntityInterface;
 
 use Drupal\entityreference\EntityReferenceRecursiveRenderingException;
-use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
+use Drupal\entityreference\Plugin\field\formatter\EntityReferenceFormatterBase;
 
 /**
  * Plugin implementation of the 'entity-reference rendered entity' formatter.
@@ -31,7 +31,7 @@ use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatte
  *   }
  * )
  */
-class EntityReferenceEntityFormatter extends DefaultEntityReferenceFormatter {
+class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase {
 
   /**
    * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::settingsForm().

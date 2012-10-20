@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter.
+ * Definition of Drupal\entityreference\Plugin\field\formatter\EntityReferenceFormatterBase.
  */
 
 namespace Drupal\entityreference\Plugin\field\formatter;
@@ -16,7 +16,7 @@ use Drupal\field\Plugin\Type\Formatter\FormatterBase;
 /**
  * Parent plugin for entity-reference formatters.
  */
-abstract class DefaultEntityReferenceFormatter extends FormatterBase {
+abstract class EntityReferenceFormatterBase extends FormatterBase {
 
   /**
    * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::prepareView().
@@ -76,7 +76,7 @@ abstract class DefaultEntityReferenceFormatter extends FormatterBase {
    *
    * Remove unaccessible values.
    *
-   * @see Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter::prepareView().
+   * @see Drupal\entityreference\Plugin\field\formatter\EntityReferenceFormatterBase::prepareView().
    */
   public function viewElements(EntityInterface $entity, $langcode, array $items) {
     // Remove unaccessible items.

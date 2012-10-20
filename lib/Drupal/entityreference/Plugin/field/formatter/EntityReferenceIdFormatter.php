@@ -11,7 +11,7 @@ use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\EntityInterface;
 
-use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatter;
+use Drupal\entityreference\Plugin\field\formatter\EntityReferenceFormatterBase;
 
 /**
  * Plugin implementation of the 'entity-reference ID' formatter.
@@ -26,7 +26,7 @@ use Drupal\entityreference\Plugin\field\formatter\DefaultEntityReferenceFormatte
  *   }
  * )
  */
-class EntityReferenceIdFormatter extends DefaultEntityReferenceFormatter {
+class EntityReferenceIdFormatter extends EntityReferenceFormatterBase {
 
   /**
    * Implements Drupal\field\Plugin\Type\Formatter\FormatterInterface::viewElements().
