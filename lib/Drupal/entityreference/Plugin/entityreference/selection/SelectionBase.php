@@ -14,7 +14,6 @@ use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Database\Query\AlterableInterface;
 
-use Drupal\field\Plugin\PluginSettingsBase;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionInterface;
 use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
 
@@ -27,7 +26,7 @@ use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
  *   label = @Translation("Simple selection")
  * )
  */
-class SelectionBase extends PluginSettingsBase implements SelectionInterface {
+class SelectionBase implements SelectionInterface {
 
   /**
    * Implements EntityReferenceHandler::getInstance().
