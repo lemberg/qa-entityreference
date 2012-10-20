@@ -30,18 +30,4 @@ class SelectionPluginManager extends PluginManagerBase {
     $this->baseDiscovery = new AnnotatedClassDiscovery('entityreference', 'selection');
     $this->discovery = new CacheDecorator($this->baseDiscovery, $this->cache_key);
   }
-
-  /**
-   * Overrides Drupal\Component\Plugin\PluginManagerBase::getDefinition().
-   *
-   * @todo Remove when http://drupal.org/node/1778942 is fixed.
-   */
-  public function getDefinition($plugin_id) {
-    $definition = $this->discovery->getDefinition($plugin_id);
-    if (!empty($definition)) {
-      $this->processDefinition($definition, $plugin_id);
-      return $definition;
-    }
-  }
-
 }
