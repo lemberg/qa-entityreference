@@ -28,34 +28,6 @@ use Drupal\entityreference\Plugin\Type\Selection\SelectionBroken;
  */
 class SelectionBase implements SelectionInterface {
 
-  /**
-   * Implements EntityReferenceHandler::getInstance().
-   */
-  public static function getInstance($field, $instance = NULL, EntityInterface $entity = NULL) {
-    $target_entity_type = $field['settings']['target_type'];
-
-    // Check if the entity type does exist and has a base table.
-    $entity_info = entity_get_info($target_entity_type);
-    if (empty($entity_info['base table'])) {
-      return \Drupal\entityreference\Plugin\Type\Selection\SelectionBroken::getInstance($field, $instance);
-    }
-
-    // TODO: Since we are using PSR-0 how can we allow having any entity?
-    // e.g. $class_name = 'SelectionEntityType' . $target_entity_type
-
-    // Convert the entity type name to camel-case.
-    $camel_case = str_replace('_', ' ', $target_entity_type);
-    $camel_case = ucwords($camel_case);
-    $camel_case = str_replace(' ', ' ', $camel_case);
-
-    if (class_exists($class_name = '\Drupal\entityreference\Plugin\Type\Selection\SelectionEntityType' . $camel_case)) {
-      return new $class_name($field, $instance, $entity);
-    }
-    else {
-      return new SelectionBase($field, $instance, $entity);
-    }
-  }
-
   public function __construct($field, $instance = NULL, EntityInterface $entity = NULL) {
     $this->field = $field;
     $this->instance = $instance;

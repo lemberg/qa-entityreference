@@ -16,15 +16,6 @@ use Drupal\Core\Database\Query\AlterableInterface;
 interface SelectionInterface  {
 
   /**
-   * Factory function: create a new instance of this handler for a given field.
-   *
-   * @param $field
-   *   A field datastructure.
-   * @return EntityReferenceHandler
-   */
-  public static function getInstance($field, $instance = NULL, EntityInterface $entity = NULL);
-
-  /**
    * Return a list of referencable entities.
    *
    * @return

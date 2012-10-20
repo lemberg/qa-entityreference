@@ -21,10 +21,6 @@ use Drupal\entityreference\Plugin\entityreference\selection\SelectionBase;
  */
 class SelectionBroken implements SelectionInterface {
 
-  public static function getInstance($field, $instance = NULL, EntityInterface $entity = NULL) {
-    return new SelectionBroken($field, $instance, $entity_type, $entity);
-  }
-
   protected function __construct($field, $instance) {
     $this->field = $field;
     $this->instance = $instance;
