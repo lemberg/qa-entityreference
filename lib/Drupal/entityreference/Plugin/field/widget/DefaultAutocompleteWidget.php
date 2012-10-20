@@ -20,12 +20,11 @@ abstract class DefaultAutocompleteWidget extends WidgetBase {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::settingsForm().
    */
   public function settingsForm(array $form, array &$form_state) {
-    $settings = $this->settings;
 
     $form['match_operator'] = array(
       '#type' => 'select',
       '#title' => t('Autocomplete matching'),
-      '#default_value' => $settings['match_operator'],
+      '#default_value' => $this->getSetting('match_operator'),
       '#options' => array(
         'STARTS_WITH' => t('Starts with'),
         'CONTAINS' => t('Contains'),
@@ -35,7 +34,7 @@ abstract class DefaultAutocompleteWidget extends WidgetBase {
     $form['size'] = array(
       '#type' => 'textfield',
       '#title' => t('Size of textfield'),
-      '#default_value' => $settings['size'],
+      '#default_value' => $this->getSetting('size'),
       '#element_validate' => array('form_validate_number'),
       // Minimum value for form_validate_number().
       '#min' => 1,
@@ -49,15 +48,6 @@ abstract class DefaultAutocompleteWidget extends WidgetBase {
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::formElement().
    */
   public function formElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state) {
-    // We let the Field API handles multiple values for us, only take
-    // care of the one matching our delta.
-    if (isset($items[$delta])) {
-      $items = array($items[$delta]);
-    }
-    else {
-      $items = array();
-    }
-
     $element = $this->prepareElement($items, $delta, $element, $langcode, $form, $form_state, 'entityreference/autocomplete/single');
     return array('target_id' => $element);
   }
@@ -71,11 +61,11 @@ abstract class DefaultAutocompleteWidget extends WidgetBase {
   protected function prepareElement(array $items, $delta, array $element, $langcode, array &$form, array &$form_state, $default_path) {
     $instance = $this->instance;
     $field = $this->field;
-    $settings = $this->settings;
     $entity = isset($element['#entity']) ? $element['#entity'] : NULL;
 
     // Prepare the autocomplete path.
-    $autocomplete_path = !empty($settings['path']) ? $settings['path'] : $default_path;
+    $path = $this->getSetting('path');
+    $autocomplete_path = !empty($path) ? $path : $default_path;
     $autocomplete_path .= '/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/';
 
     // Use <NULL> as a placeholder in the URL when we don't have an entity.
@@ -93,7 +83,7 @@ abstract class DefaultAutocompleteWidget extends WidgetBase {
       '#maxlength' => 1024,
       '#default_value' => implode(', ', $this->getLabels($items)),
       '#autocomplete_path' => $autocomplete_path,
-      '#size' => $settings['size'],
+      '#size' => $this->getSetting('size'),
       '#element_validate' => array(array($this, 'elementValidate')),
     );
     return $element;

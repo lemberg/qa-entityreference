@@ -67,11 +67,11 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase {
    */
   public function settingsSummary() {
     $summary = array();
-    $settings = $this->settings;
 
     $entity_info = entity_get_info($this->field['settings']['target_type']);
-    $summary[] = t('Rendered as @mode', array('@mode' => isset($entity_info['view modes'][$settings['view_mode']]['label']) ? $entity_info['view modes'][$settings['view_mode']]['label'] : $settings['view_mode']));
-    $summary[] = !empty($settings['links']) ? t('Display links') : t('Do not display links');
+    $view_mode = $this->getSetting('view_mode');
+    $summary[] = t('Rendered as @mode', array('@mode' => isset($entity_info['view modes'][$view_mode]['label']) ? $entity_info['view modes'][$view_mode]['label'] : $view_mode));
+    $summary[] = $this->getSetting('links') ? t('Display links') : t('Do not display links');
 
     return implode('<br />', $summary);
   }
@@ -85,7 +85,8 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase {
 
     $instance = $this->instance;
     $field = $this->field;
-    $settings = $this->settings;
+    $view_mode = $this->getSetting('view_mode');
+    $links = $this->getSetting('links');
 
     $target_type = $field['settings']['target_type'];
 
@@ -101,9 +102,9 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase {
 
       $entity = clone $item['entity'];
       unset($entity->content);
-      $elements[$delta] = entity_view($entity, $settings['view_mode'], $langcode);
+      $elements[$delta] = entity_view($entity, $view_mode, $langcode);
 
-      if (empty($settings['links']) && isset($result[$delta][$target_type][$item['target_id']]['links'])) {
+      if (empty($links) && isset($result[$delta][$target_type][$item['target_id']]['links'])) {
         // Hide the element links.
         $elements[$delta][$target_type][$item['target_id']]['links']['#access'] = FALSE;
       }
