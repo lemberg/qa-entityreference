@@ -8,6 +8,7 @@
 namespace Drupal\entityreference\Plugin\Type\Selection;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Database\Query\AlterableInterface;
 
 /**
  * Interface definition for entityre-ference selection plugins.
@@ -64,7 +65,7 @@ interface SelectionInterface  {
    *
    * @todo: This causes Declaration error
    */
-  //public function entityFieldQueryAlter(SelectQueryInterface $query);
+  public function entityFieldQueryAlter(AlterableInterface $query);
 
   /**
    * Generate a settings form for this handler.
