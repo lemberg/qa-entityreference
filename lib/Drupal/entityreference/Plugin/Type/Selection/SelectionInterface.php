@@ -10,12 +10,7 @@ namespace Drupal\entityreference\Plugin\Type\Selection;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Interface definition for field widget plugins.
- *
- * This interface details the methods that most plugin implementations will want
- * to override. See Drupal\field\Plugin\Type\Selection\SelectionBaseInterface for base
- * wrapping methods that should most likely be inherited directly from
- * Drupal\entityreference\Plugin\Type\Selection\SelectionBase..
+ * Interface definition for entityre-ference selection plugins.
  */
 interface SelectionInterface  {
 
