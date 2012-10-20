@@ -11,7 +11,7 @@ use Drupal\Core\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
 use Drupal\field\Plugin\Type\Widget\WidgetBase;
 
-use Drupal\entityreference\Plugin\field\widget\DefaultAutocompleteWidget;
+use Drupal\entityreference\Plugin\field\widget\AutocompleteWidgetBase;
 
 /**
  * Plugin implementation of the 'entityreference autocomplete-tags' widget.
@@ -37,7 +37,7 @@ use Drupal\entityreference\Plugin\field\widget\DefaultAutocompleteWidget;
  *   multiple_values = FIELD_BEHAVIOR_CUSTOM
  * )
  */
-class AutocompleteTagsWidget extends DefaultAutocompleteWidget {
+class AutocompleteTagsWidget extends AutocompleteWidgetBase {
 
   /**
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::formElement().

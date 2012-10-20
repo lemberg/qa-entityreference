@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\entityreference\Plugin\field\widget\DefaultAutocompleteWidget.
+ * Definition of Drupal\entityreference\Plugin\field\widget\AutocompleteWidgetBase.
  */
 
 namespace Drupal\entityreference\Plugin\field\widget;
@@ -14,7 +14,7 @@ use Drupal\field\Plugin\Type\Widget\WidgetBase;
 /**
  * Parent plugin for entity-reference autocomplete widgets.
  */
-abstract class DefaultAutocompleteWidget extends WidgetBase {
+abstract class AutocompleteWidgetBase extends WidgetBase {
 
   /**
    * Implements Drupal\field\Plugin\Type\Widget\WidgetInterface::settingsForm().
