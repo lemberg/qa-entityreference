@@ -326,7 +326,7 @@ function entityreference_settings_ajax_submit($form, &$form_state) {
  * http://drupal.org/node/1751234
  * http://drupal.org/node/1705702
  */
-function entityreference_field_widget_info_alter(&$info) {
+function entityreference_field_widget_info_alter(array &$info) {
   if (module_exists('options')) {
     $info['options_select']['field types'][] = 'entityreference';
     $info['options_buttons']['field types'][] = 'entityreference';
