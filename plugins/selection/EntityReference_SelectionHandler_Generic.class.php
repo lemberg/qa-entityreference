@@ -183,8 +183,8 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
   public function countReferencableEntities($match = NULL, $match_operator = 'CONTAINS') {
     $query = $this->buildEntityFieldQuery($match, $match_operator);
     return $query
-      ->count()
-      ->execute();
+                    ->count()
+                    ->execute();
   }
 
   /**
@@ -208,34 +208,40 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
    * Implements EntityReferenceHandler::validateAutocompleteInput().
    */
   public function validateAutocompleteInput($input, &$element, &$form_state, $form) {
-      $entities = $this->getReferencableEntities($input, '=', 6);
-      if (empty($entities)) {
-        // Error if there are no entities available for a required field.
-        form_error($element, t('There are no entities matching "%value"', array('%value' => $input)));
-      }
-      if ($this->instance['widget']['settings']['show_identifier']) {
-        if (count($entities) > 5) {
-          // Error if there are more than 5 matching entities.
-          form_error($element, t('Many entities are called %value. Specify the one you want by appending the id in parentheses, like "@value (@id)"', array(
-            '%value' => $input,
-            '@value' => $input,
-            '@id' => key($entities),
-          )));
+    $entities = $this->getReferencableEntities($input, '=', 6);
+    $entity_count = 0;
+    foreach (array_keys($entities) as $bundle) {
+      $entity_count += count($entities[$bundle]);
+    }
+
+    if ($entity_count == 0) {
+      // Error if there are no entities available for a required field.
+      form_error($element, t('There are no entities matching "%value"', array('%value' => $input)));
+    }
+    if ($entity_count > 5) {
+      // Error if there are more than 5 matching entities.
+      form_error($element, t('Many entities are called %value. Specify the one you want by appending the id in parentheses, like "@value (@id)"', array(
+        '%value' => $input,
+        '@value' => $input,
+        '@id' => key(array_shift($entities)),
+      )));
+    }
+    elseif ($entity_count > 1) {
+      // More helpful error if there are only a few matching entities.
+      $multiples = array();
+      foreach (array_keys($entities) as $bundle) {
+        foreach ($entities[$bundle] as $id => $name) {
+          $multiples[] = $name . ' (' . $id . ')';
         }
-        elseif (count($entities) > 1) {
-          // More helpful error if there are only a few matching entities.
-          $multiples = array();
-          foreach ($entities as $id => $name) {
-            $multiples[] = $name . ' (' . $id . ')';
-          }
-          form_error($element, t('Multiple entities match this reference; "%multiple"', array('%multiple' => implode('", "', $multiples))));          $multiples[] = $name . ' (' . $id . ')';
-        }
+        form_error($element, t('Multiple entities match this reference; "%multiple"', array('%multiple' => implode('", "', $multiples))));
+        $multiples[] = $name . ' (' . $id . ')';
       }
-      else {
-        // Take the one and only matching entity, or the first one in case
-        // "Show-identifier" is disabled.
-        return key($entities);
-      }
+    }
+    else {
+      // Take the one and only matching entity, or the first one in case
+      // "Show-identifier" is disabled.
+      return key(array_shift($entities));
+    }
   }
 
   /**
@@ -345,6 +351,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
     // Return the alias of the table.
     return $query->innerJoin($target_type, NULL, "$target_type.$id = $alias.entity_id");
   }
+
 }
 
 /**
@@ -353,6 +360,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
  * This only exists to workaround core bugs.
  */
 class EntityReference_SelectionHandler_Generic_node extends EntityReference_SelectionHandler_Generic {
+
   public function entityFieldQueryAlter(SelectQueryInterface $query) {
     // Adding the 'node_access' tag is sadly insufficient for nodes: core
     // requires us to also know about the concept of 'published' and
@@ -364,6 +372,7 @@ class EntityReference_SelectionHandler_Generic_node extends EntityReference_Sele
       $query->condition("$base_table.status", NODE_PUBLISHED);
     }
   }
+
 }
 
 /**
@@ -372,6 +381,7 @@ class EntityReference_SelectionHandler_Generic_node extends EntityReference_Sele
  * This only exists to workaround core bugs.
  */
 class EntityReference_SelectionHandler_Generic_user extends EntityReference_SelectionHandler_Generic {
+
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {
     $query = parent::buildEntityFieldQuery($match, $match_operator);
 
@@ -414,14 +424,15 @@ class EntityReference_SelectionHandler_Generic_user extends EntityReference_Sele
           $value_part->condition('anonymous_name', $condition['value'], $condition['operator']);
           $value_part->compile(Database::getConnection(), $query);
           $or->condition(db_and()
-            ->where(str_replace('anonymous_name', ':anonymous_name', (string) $value_part), $value_part->arguments() + array(':anonymous_name' => format_username(user_load(0))))
-            ->condition('users.uid', 0)
+                          ->where(str_replace('anonymous_name', ':anonymous_name', (string) $value_part), $value_part->arguments() + array(':anonymous_name' => format_username(user_load(0))))
+                          ->condition('users.uid', 0)
           );
           $query->condition($or);
         }
       }
     }
   }
+
 }
 
 /**
@@ -430,6 +441,7 @@ class EntityReference_SelectionHandler_Generic_user extends EntityReference_Sele
  * This only exists to workaround core bugs.
  */
 class EntityReference_SelectionHandler_Generic_comment extends EntityReference_SelectionHandler_Generic {
+
   public function entityFieldQueryAlter(SelectQueryInterface $query) {
     // Adding the 'comment_access' tag is sadly insufficient for comments: core
     // requires us to also know about the concept of 'published' and
@@ -471,6 +483,7 @@ class EntityReference_SelectionHandler_Generic_comment extends EntityReference_S
       $query->condition($node_alias . '.status', 1);
     }
   }
+
 }
 
 /**
@@ -479,6 +492,7 @@ class EntityReference_SelectionHandler_Generic_comment extends EntityReference_S
  * This only exists to workaround core bugs.
  */
 class EntityReference_SelectionHandler_Generic_file extends EntityReference_SelectionHandler_Generic {
+
   public function entityFieldQueryAlter(SelectQueryInterface $query) {
     // Core forces us to know about 'permanent' vs. 'temporary' files.
     $tables = $query->getTables();
@@ -496,6 +510,7 @@ class EntityReference_SelectionHandler_Generic_file extends EntityReference_Sele
     // sometimes empty, so use the basename in that case.
     return $entity->filename !== '' ? $entity->filename : basename($entity->uri);
   }
+
 }
 
 /**
@@ -504,6 +519,7 @@ class EntityReference_SelectionHandler_Generic_file extends EntityReference_Sele
  * This only exists to workaround core bugs.
  */
 class EntityReference_SelectionHandler_Generic_taxonomy_term extends EntityReference_SelectionHandler_Generic {
+
   public function entityFieldQueryAlter(SelectQueryInterface $query) {
     // The Taxonomy module doesn't implement any proper taxonomy term access,
     // and as a consequence doesn't make sure that taxonomy terms cannot be viewed
@@ -531,7 +547,7 @@ class EntityReference_SelectionHandler_Generic_taxonomy_term extends EntityRefer
    */
   public function getReferencableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
     if ($match || $limit) {
-      return parent::getReferencableEntities($match , $match_operator, $limit);
+      return parent::getReferencableEntities($match, $match_operator, $limit);
     }
 
     $options = array();
@@ -553,4 +569,5 @@ class EntityReference_SelectionHandler_Generic_taxonomy_term extends EntityRefer
 
     return $options;
   }
+
 }
