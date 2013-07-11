@@ -209,23 +209,29 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
    */
   public function validateAutocompleteInput($input, &$element, &$form_state, $form) {
       $entities = $this->getReferencableEntities($input, '=', 6);
-      if (empty($entities)) {
+      $entity_count = 0;
+      foreach (array_keys($entities) as $bundle) {
+        $entity_count += count($entities[$bundle]);
+      }
+
+      if ($entity_count == 0) {
         // Error if there are no entities available for a required field.
         form_error($element, t('There are no entities matching "%value"', array('%value' => $input)));
       }
       if ($this->instance['widget']['settings']['show_identifier']) {
-        if (count($entities) > 5) {
+        if ($entity_count > 5) {
           // Error if there are more than 5 matching entities.
           form_error($element, t('Many entities are called %value. Specify the one you want by appending the id in parentheses, like "@value (@id)"', array(
             '%value' => $input,
             '@value' => $input,
-            '@id' => key($entities),
+            '@id' => key(array_shift($entities)),
           )));
         }
-        elseif (count($entities) > 1) {
+        elseif ($entity_count > 1) {
           // More helpful error if there are only a few matching entities.
           $multiples = array();
-          foreach ($entities as $id => $name) {
+          foreach (array_keys($entities) as $bundle) {
+          foreach ($entities[$bundle] as $id => $name) {
             $multiples[] = $name . ' (' . $id . ')';
           }
           form_error($element, t('Multiple entities match this reference; "%multiple"', array('%multiple' => implode('", "', $multiples))));          $multiples[] = $name . ' (' . $id . ')';
@@ -234,7 +240,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
       else {
         // Take the one and only matching entity, or the first one in case
         // "Show-identifier" is disabled.
-        return key($entities);
+        return key(array_shift($entities));
       }
   }
 
